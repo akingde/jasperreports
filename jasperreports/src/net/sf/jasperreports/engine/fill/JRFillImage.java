@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -169,60 +169,6 @@ public class JRFillImage extends JRFillGraphicElement implements JRImage
 		throw new UnsupportedOperationException();
 	}
 
-	/**
-	 * @deprecated Replaced by {@link #getHorizontalImageAlign()}.
-	 */
-	@Override
-	public net.sf.jasperreports.engine.type.HorizontalAlignEnum getHorizontalAlignmentValue()
-	{
-		return net.sf.jasperreports.engine.type.HorizontalAlignEnum.getHorizontalAlignEnum(getHorizontalImageAlign());
-	}
-		
-	/**
-	 * @deprecated Replaced by {@link #getOwnHorizontalImageAlign()}.
-	 */
-	@Override
-	public net.sf.jasperreports.engine.type.HorizontalAlignEnum getOwnHorizontalAlignmentValue()
-	{
-		return net.sf.jasperreports.engine.type.HorizontalAlignEnum.getHorizontalAlignEnum(getOwnHorizontalImageAlign());
-	}
-		
-	/**
-	 * @deprecated Replaced by {@link #setHorizontalImageAlign(HorizontalImageAlignEnum)}.
-	 */
-	@Override
-	public void setHorizontalAlignment(net.sf.jasperreports.engine.type.HorizontalAlignEnum horizontalAlignmentValue)
-	{
-		setHorizontalImageAlign(net.sf.jasperreports.engine.type.HorizontalAlignEnum.getHorizontalImageAlignEnum(horizontalAlignmentValue));
-	}
-
-	/**
-	 * @deprecated Replaced by {@link #getVerticalImageAlign()}.
-	 */
-	@Override
-	public net.sf.jasperreports.engine.type.VerticalAlignEnum getVerticalAlignmentValue()
-	{
-		return net.sf.jasperreports.engine.type.VerticalAlignEnum.getVerticalAlignEnum(getVerticalImageAlign());
-	}
-		
-	/**
-	 * @deprecated Replaced by {@link #getOwnVerticalImageAlign()}.
-	 */
-	@Override
-	public net.sf.jasperreports.engine.type.VerticalAlignEnum getOwnVerticalAlignmentValue()
-	{
-		return net.sf.jasperreports.engine.type.VerticalAlignEnum.getVerticalAlignEnum(getOwnVerticalImageAlign());
-	}
-		
-	/**
-	 * @deprecated Replaced by {@link #setVerticalImageAlign(VerticalImageAlignEnum)}.
-	 */
-	@Override
-	public void setVerticalAlignment(net.sf.jasperreports.engine.type.VerticalAlignEnum verticalAlignmentValue)
-	{
-		setVerticalImageAlign(net.sf.jasperreports.engine.type.VerticalAlignEnum.getVerticalImageAlignEnum(verticalAlignmentValue));
-	}
-		
 	@Override
 	public HorizontalImageAlignEnum getHorizontalImageAlign()
 	{
@@ -283,6 +229,9 @@ public class JRFillImage extends JRFillGraphicElement implements JRImage
 		return ((JRImage)this.parent).getUsingCache();
 	}
 		
+	/**
+	 * @deprecated Replaced by {@link #setUsingCache(Boolean)}.
+	 */
 	@Override
 	public void setUsingCache(boolean isUsingCache)
 	{
@@ -762,8 +711,8 @@ public class JRFillImage extends JRFillGraphicElement implements JRImage
 					&& (getScaleImageValue() == ScaleImageEnum.REAL_HEIGHT || getScaleImageValue() == ScaleImageEnum.REAL_SIZE)
 					)
 				{
-					int padding = getLineBox().getBottomPadding().intValue() 
-							+ getLineBox().getTopPadding().intValue();
+					int padding = getLineBox().getBottomPadding() 
+							+ getLineBox().getTopPadding();
 					boolean reprinted = isOverflow 
 						&& (this.isPrintWhenDetailOverflows() 
 								&& (this.isAlreadyPrinted() 
@@ -827,7 +776,7 @@ public class JRFillImage extends JRFillGraphicElement implements JRImage
 								{
 									if (imageHeight != null)
 									{
-										setPrepareHeight(imageHeight.intValue() + padding);
+										setPrepareHeight(imageHeight + padding);
 									}
 								}
 								else
@@ -922,10 +871,10 @@ public class JRFillImage extends JRFillGraphicElement implements JRImage
 		
 		if (reducedHeight <= availableHeight)
 		{
-			imageHeight = Integer.valueOf(reducedHeight);
+			imageHeight = reducedHeight;
 			if (getScaleImageValue() == ScaleImageEnum.REAL_SIZE)
 			{
-				imageWidth = Integer.valueOf(reducedWidth);
+				imageWidth = reducedWidth;
 			}
 			fitted = true;
 		}
@@ -935,24 +884,24 @@ public class JRFillImage extends JRFillGraphicElement implements JRImage
 		}
 		else
 		{
-			imageHeight = Integer.valueOf(availableHeight);
+			imageHeight = availableHeight;
 			if (getScaleImageValue() == ScaleImageEnum.REAL_SIZE)
 			{
 				double hRatio = ((double) availableHeight) / realHeight;
-				imageWidth = Integer.valueOf((int) (hRatio * realWidth));
+				imageWidth = (int) (hRatio * realWidth);
 			}
 			fitted = true;
 		}
 
-		if (imageWidth != null && imageWidth.intValue() != getWidth())
+		if (imageWidth != null && imageWidth != getWidth())
 		{
 			switch (hAlign)
 			{
 			case RIGHT:
-				imageX = Integer.valueOf(getX() + getWidth() - imageWidth.intValue());
+				imageX = getX() + getWidth() - imageWidth;
 				break;
 			case CENTER:
-				imageX = Integer.valueOf(getX() + (getWidth() - imageWidth.intValue()) / 2);
+				imageX = getX() + (getWidth() - imageWidth) / 2;
 				break;
 			default:
 				break;
@@ -1017,11 +966,11 @@ public class JRFillImage extends JRFillGraphicElement implements JRImage
 
 		if (imageX != null)
 		{
-			printImage.setX(imageX.intValue());
+			printImage.setX(imageX);
 		}
 		if (imageWidth != null)
 		{
-			printImage.setWidth(imageWidth.intValue());
+			printImage.setWidth(imageWidth);
 		}
 		
 		printImage.setRenderer(getRenderable());
@@ -1101,8 +1050,8 @@ public class JRFillImage extends JRFillGraphicElement implements JRImage
 					if (imageSize != null)
 					{
 						int padding = 
-							printImage.getLineBox().getBottomPadding().intValue() 
-							+ printImage.getLineBox().getTopPadding().intValue();
+							printImage.getLineBox().getBottomPadding() 
+							+ printImage.getLineBox().getTopPadding();
 							
 						fitImage(
 							imageSize,

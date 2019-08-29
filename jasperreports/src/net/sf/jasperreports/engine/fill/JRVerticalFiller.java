@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -2194,12 +2194,12 @@ public class JRVerticalFiller extends JRBaseFiller
 		JRFillVariable pageNumberVar = calculator.getPageNumber();
 		if (isResetPageNumber)
 		{
-			pageNumberVar.setValue(Integer.valueOf(1));
+			pageNumberVar.setValue(1);
 		}
 		else
 		{
 			pageNumberVar.setValue(
-				Integer.valueOf(((Number)pageNumberVar.getValue()).intValue() + 1)
+				((Number)pageNumberVar.getValue()).intValue() + 1
 				);
 		}
 		pageNumberVar.setOldValue(pageNumberVar.getValue());
@@ -2226,7 +2226,7 @@ public class JRVerticalFiller extends JRBaseFiller
 	private void setColumnNumberVar()
 	{
 		JRFillVariable columnNumber = calculator.getColumnNumber();
-		columnNumber.setValue(Integer.valueOf(columnIndex + 1));
+		columnNumber.setValue(columnIndex + 1);
 		columnNumber.setOldValue(columnNumber.getValue());
 	}
 

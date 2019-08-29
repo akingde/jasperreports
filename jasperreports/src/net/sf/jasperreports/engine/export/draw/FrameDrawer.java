@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -276,8 +276,8 @@ public class FrameDrawer extends ElementDrawer<JRPrintFrame>
 	private void setFrameElementsOffset(JRPrintFrame frame, int offsetX, int offsetY)
 	{	
 		setElementOffsets(
-			offsetX + frame.getX() + frame.getLineBox().getLeftPadding().intValue(), 
-			offsetY + frame.getY() + frame.getLineBox().getTopPadding().intValue()
+			offsetX + frame.getX() + frame.getLineBox().getLeftPadding(), 
+			offsetY + frame.getY() + frame.getLineBox().getTopPadding()
 			);
 	}
 	

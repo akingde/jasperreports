@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -34,7 +34,9 @@ import java.net.URL;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -83,14 +85,14 @@ public abstract class AbstractTest
 
 	protected Object[][] runReportArgs(String folderName, String fileNamePrefix, String exportFileNamePrefix, int maxFileNumber)
 	{
-		Object[][] args = new Object[maxFileNumber][];
+		List<Object[]> args = new ArrayList<>(maxFileNumber);
 		for (int i = 1; i <= maxFileNumber; i++)
 		{
 			String jrxmlFileName = folderName + "/" + fileNamePrefix + "." + i + ".jrxml";
 			String referenceFileNamePrefix = folderName + "/" + exportFileNamePrefix + "." + i + ".reference";
-			args[i - 1] = new Object[] {jrxmlFileName, referenceFileNamePrefix};
+			args.add(new Object[] {jrxmlFileName, referenceFileNamePrefix});
 		}
-		return args;
+		return args.toArray(new Object[args.size()][]);
 	}
 
 	protected void runReport(String jrxmlFileName, String referenceFileNamePrefix) 
@@ -117,8 +119,24 @@ public abstract class AbstractTest
 				String exportDigest = xmlExportDigest(print);
 				log.debug("Plain report got " + exportDigest);
 				
+				boolean digestMatch = false;
+
 				String referenceExportDigest = getFileDigest(referenceFileNamePrefix + ".jrpxml");
-				assert exportDigest.equals(referenceExportDigest);
+				if (exportDigest.equals(referenceExportDigest))
+				{
+					digestMatch = true;
+				}
+				else
+				{
+					//fallback to account for JDK differences
+					referenceExportDigest = getFileDigest(referenceFileNamePrefix + ".2.jrpxml");
+					if (referenceExportDigest != null)
+					{
+						digestMatch = exportDigest.equals(referenceExportDigest);
+					}
+				}
+				
+				assert digestMatch;
 			}
 		}
 		catch (Throwable t)

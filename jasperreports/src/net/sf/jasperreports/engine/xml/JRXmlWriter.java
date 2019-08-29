@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -831,6 +831,8 @@ public class JRXmlWriter extends JRXmlBaseWriter
 		}
 		writer.addAttribute(JRXmlConstants.ATTRIBUTE_calculation, variable.getCalculationValue(), CalculationEnum.NOTHING);
 		writer.addAttribute(JRXmlConstants.ATTRIBUTE_incrementerFactoryClass, variable.getIncrementerFactoryClassName());
+
+		writer.writeCDATAElement(JRXmlConstants.ELEMENT_variableDescription, variable.getDescription());
 
 		writeExpression(JRXmlConstants.ELEMENT_variableExpression, variable.getExpression(), false);
 		writeExpression(JRXmlConstants.ELEMENT_initialValueExpression, variable.getInitialValueExpression(), false);
@@ -3495,7 +3497,10 @@ public class JRXmlWriter extends JRXmlBaseWriter
 	public void writeFrame(JRFrame frame) throws IOException
 	{
 		writer.startElement(JRXmlConstants.ELEMENT_frame, getNamespace());
-		writer.addAttribute(JRXmlConstants.ATTRIBUTE_borderSplitType, frame.getBorderSplitType());
+		if (isNewerVersionOrEqual(JRConstants.VERSION_6_0_0))
+		{
+			writer.addAttribute(JRXmlConstants.ATTRIBUTE_borderSplitType, frame.getBorderSplitType());
+		}
 
 		writeReportElement(frame);
 		writeBox(frame.getLineBox());

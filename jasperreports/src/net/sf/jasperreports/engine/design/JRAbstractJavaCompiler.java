@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -29,9 +29,10 @@
 package net.sf.jasperreports.engine.design;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
-import org.apache.commons.collections.map.ReferenceMap;
+import org.apache.commons.collections4.map.ReferenceMap;
 
 import net.sf.jasperreports.annotations.properties.Property;
 import net.sf.jasperreports.annotations.properties.PropertyScope;
@@ -80,7 +81,10 @@ public abstract class JRAbstractJavaCompiler extends JRAbstractCompiler
 
 
 	private static final Object CLASS_CACHE_NULL_KEY = new Object();
-	private static Map<Object,Map<String,Class<?>>> classCache = new ReferenceMap(ReferenceMap.WEAK, ReferenceMap.SOFT);
+	private static Map<Object,Map<String,Class<?>>> classCache = 
+		new ReferenceMap<Object,Map<String,Class<?>>>(
+			ReferenceMap.ReferenceStrength.WEAK, ReferenceMap.ReferenceStrength.SOFT
+			);
 
 	
 	/**
@@ -112,9 +116,9 @@ public abstract class JRAbstractJavaCompiler extends JRAbstractCompiler
 				classFromBytesRef.set(clazz);
 			}
 		
-			evaluator = (JREvaluator) clazz.newInstance();
+			evaluator = (JREvaluator) clazz.getDeclaredConstructor().newInstance();
 		}
-		catch (Exception e)
+		catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | InstantiationException e)
 		{
 			throw 
 			new JRException(
@@ -153,7 +157,7 @@ public abstract class JRAbstractJavaCompiler extends JRAbstractCompiler
 		Map<String,Class<?>> contextMap = classCache.get(key);
 		if (contextMap == null)
 		{
-			contextMap = new ReferenceMap(ReferenceMap.HARD, ReferenceMap.SOFT);
+			contextMap = new ReferenceMap<String,Class<?>>(ReferenceMap.ReferenceStrength.HARD, ReferenceMap.ReferenceStrength.SOFT);
 			classCache.put(key, contextMap);
 		}
 		contextMap.put(className, loadedClass);

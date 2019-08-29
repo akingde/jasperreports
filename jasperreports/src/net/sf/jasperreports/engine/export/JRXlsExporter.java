@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -69,6 +69,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.usermodel.HeaderFooter;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.ClientAnchor;
@@ -185,8 +186,8 @@ public class JRXlsExporter extends JRXlsAbstractExporter<XlsReportConfiguration,
 	/**
 	 *
 	 */
-	protected short whiteIndex = (new HSSFColor.WHITE()).getIndex();
-	protected short blackIndex = (new HSSFColor.BLACK()).getIndex();
+	protected short whiteIndex = HSSFColor.HSSFColorPredefined.WHITE.getIndex();
+	protected short blackIndex = HSSFColor.HSSFColorPredefined.BLACK.getIndex();
 	protected short customColorIndex = MIN_COLOR_INDEX;
 
 	protected FillPatternType backgroundMode = FillPatternType.SOLID_FOREGROUND;
@@ -332,7 +333,7 @@ public class JRXlsExporter extends JRXlsAbstractExporter<XlsReportConfiguration,
 			}
 		}
 		emptyCellStyle = workbook.createCellStyle();
-		emptyCellStyle.setFillForegroundColor((new HSSFColor.WHITE()).getIndex());
+		emptyCellStyle.setFillForegroundColor(HSSFColor.HSSFColorPredefined.WHITE.getIndex());
 		emptyCellStyle.setFillPattern(backgroundMode);
 		dataFormat = workbook.createDataFormat();
 		createHelper = workbook.getCreationHelper();
@@ -680,7 +681,10 @@ public class JRXlsExporter extends JRXlsAbstractExporter<XlsReportConfiguration,
 	@Override
 	protected void addRowBreak(int rowIndex)
 	{
-		sheet.setRowBreak(rowIndex);
+		if(rowIndex >= 0 && rowIndex <= SpreadsheetVersion.EXCEL97.getLastRowIndex())
+		{
+			sheet.setRowBreak(rowIndex);
+		}
 	}
 
 //	protected void setCell(JRExporterGridCell gridCell, int colIndex, int rowIndex)
@@ -1031,7 +1035,7 @@ public class JRXlsExporter extends JRXlsAbstractExporter<XlsReportConfiguration,
 					}
 					else
 					{
-						cell.setCellValue(textValue.getValue().booleanValue());
+						cell.setCellValue(textValue.getValue());
 					}
 					endCreateCell(cellStyle);
 				}
@@ -1446,7 +1450,7 @@ public class JRXlsExporter extends JRXlsAbstractExporter<XlsReportConfiguration,
 	 */
 	protected static BorderStyle getBorderStyle(JRPen pen)
 	{
-		float lineWidth = pen.getLineWidth().floatValue();
+		float lineWidth = pen.getLineWidth();
 
 		if (lineWidth > 0f)
 		{
@@ -1651,13 +1655,13 @@ public class JRXlsExporter extends JRXlsAbstractExporter<XlsReportConfiguration,
 			this.imageRenderersCache = imageElement.isUsingCache() ? renderersCache : new RenderersCache(getJasperReportsContext());
 			
 			topPadding =
-				Math.max(imageElement.getLineBox().getTopPadding().intValue(), getImageBorderCorrection(imageElement.getLineBox().getTopPen()));
+				Math.max(imageElement.getLineBox().getTopPadding(), getImageBorderCorrection(imageElement.getLineBox().getTopPen()));
 			leftPadding =
-				Math.max(imageElement.getLineBox().getLeftPadding().intValue(), getImageBorderCorrection(imageElement.getLineBox().getLeftPen()));
+				Math.max(imageElement.getLineBox().getLeftPadding(), getImageBorderCorrection(imageElement.getLineBox().getLeftPen()));
 			bottomPadding =
-				Math.max(imageElement.getLineBox().getBottomPadding().intValue(), getImageBorderCorrection(imageElement.getLineBox().getBottomPen()));
+				Math.max(imageElement.getLineBox().getBottomPadding(), getImageBorderCorrection(imageElement.getLineBox().getBottomPen()));
 			rightPadding =
-				Math.max(imageElement.getLineBox().getRightPadding().intValue(), getImageBorderCorrection(imageElement.getLineBox().getRightPen()));
+				Math.max(imageElement.getLineBox().getRightPadding(), getImageBorderCorrection(imageElement.getLineBox().getRightPen()));
 
 			int tmpAvailableImageWidth = imageElement.getWidth() - leftPadding - rightPadding;
 			availableImageWidth = tmpAvailableImageWidth < 0 ? 0 : tmpAvailableImageWidth;
@@ -2232,14 +2236,6 @@ public class JRXlsExporter extends JRXlsAbstractExporter<XlsReportConfiguration,
 		}
 	}
 	
-	/**
-	 * @deprecated to be removed; replaced by {@link #setFreezePane(int, int)}
-	 */ 
-	@Override
-	protected void setFreezePane(int rowIndex, int colIndex, boolean isRowEdge, boolean isColumnEdge) {
-		setFreezePane(rowIndex, colIndex);
-	}
-
 	@Override
 	protected void setSheetName(String sheetName)
 	{
@@ -2301,7 +2297,7 @@ public class JRXlsExporter extends JRXlsAbstractExporter<XlsReportConfiguration,
 		protected static final int BOTTOM = 2;
 		protected static final int RIGHT = 3;
 
-		protected BorderStyle[] borderStyle = new BorderStyle[4];
+		protected BorderStyle[] borderStyle = new BorderStyle[] {BorderStyle.NONE, BorderStyle.NONE, BorderStyle.NONE, BorderStyle.NONE};
 		protected short[] borderColour = new short[4];
 		private int hash;
 

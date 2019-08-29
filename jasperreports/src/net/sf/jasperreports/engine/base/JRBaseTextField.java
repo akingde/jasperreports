@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -178,7 +178,7 @@ public class JRBaseTextField extends JRBaseTextElement implements JRTextField
 	@Override
 	public void setBlankWhenNull(boolean isBlank)
 	{
-		setBlankWhenNull(isBlank ? Boolean.TRUE : Boolean.FALSE);
+		setBlankWhenNull((Boolean)isBlank);
 	}
 
 	/**

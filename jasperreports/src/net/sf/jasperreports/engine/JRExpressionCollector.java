@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -177,10 +177,10 @@ public class JRExpressionCollector
 
 		public Integer nextId()
 		{
-			Integer id = Integer.valueOf(nextId);
-			while(ids.containsKey(id))
+			Integer id = nextId;
+			while (ids.containsKey(id))
 			{
-				id = Integer.valueOf(++nextId);
+				id = ++nextId;
 			}
 			return id;
 		}
@@ -196,7 +196,7 @@ public class JRExpressionCollector
 
 		public JRExpression expression(int id)
 		{
-			return ids.get(Integer.valueOf(id));
+			return ids.get(id);
 		}
 	}
 	private GeneratedIds generatedIds = new GeneratedIds();
@@ -1487,7 +1487,7 @@ public class JRExpressionCollector
 
 	private void createCrosstabId(JRCrosstab crosstab)
 	{
-		crosstabIds.put(crosstab, Integer.valueOf(crosstabIds.size()));
+		crosstabIds.put(crosstab, crosstabIds.size());
 	}
 
 

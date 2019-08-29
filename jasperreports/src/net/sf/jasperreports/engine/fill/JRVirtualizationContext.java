@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.commons.collections.map.ReferenceMap;
+import org.apache.commons.collections4.map.ReferenceMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -70,7 +70,10 @@ public class JRVirtualizationContext implements Serializable, VirtualizationList
 	
 	private static final Log log = LogFactory.getLog(JRVirtualizationContext.class);
 	
-	private static final ReferenceMap contexts = new ReferenceMap(ReferenceMap.WEAK, ReferenceMap.WEAK);
+	private static final ReferenceMap<JasperPrint, JRVirtualizationContext> contexts = 
+		new ReferenceMap<JasperPrint, JRVirtualizationContext>(
+			ReferenceMap.ReferenceStrength.WEAK, ReferenceMap.ReferenceStrength.WEAK
+			);
 
 	private transient JRVirtualizationContext parentContext;
 	private transient JRVirtualizer virtualizer;
@@ -330,7 +333,7 @@ public class JRVirtualizationContext implements Serializable, VirtualizationList
 	{
 		synchronized (contexts)
 		{
-			return (JRVirtualizationContext) contexts.get(print);
+			return contexts.get(print);
 		}
 	}
 	

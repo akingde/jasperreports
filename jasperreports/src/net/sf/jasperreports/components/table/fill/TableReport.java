@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -1698,8 +1698,8 @@ public class TableReport implements JRReport
 		footerFrame.setY(0);
 		footerFrame.setWidth(computeTableWidth(fillColumns));
 		footerFrame.setHeight(pageFooter.getHeight());
-		footerFrame.getLineBox().setPadding(0);
-		footerFrame.getLineBox().getPen().setLineWidth(0f);
+		footerFrame.getLineBox().setPadding((Integer)0);
+		footerFrame.getLineBox().getPen().setLineWidth((Float)0f);
 		footerFrame.setRemoveLineWhenBlank(true);
 		
 		JRDesignExpression footerPrintWhen = builtinEvaluatorFactory.createExpression(new SummaryGroupFooterPrintWhenEvaluator());

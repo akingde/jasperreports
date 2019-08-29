@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -131,7 +131,7 @@ import net.sf.jasperreports.renderers.ResourceRenderer;
  * </ul>
  * 
  * @see net.sf.jasperreports.export.DocxReportConfiguration
- * @author sanda zaharia (shertage@users.sourceforge.net)
+ * @author Sanda Zaharia (shertage@users.sourceforge.net)
  */
 public class JRDocxExporter extends JRAbstractExporter<DocxReportConfiguration, DocxExporterConfiguration, OutputStreamExporterOutput, JRDocxExporterContext>
 {
@@ -145,12 +145,7 @@ public class JRDocxExporter extends JRAbstractExporter<DocxReportConfiguration, 
 	
 	public static final String EXCEPTION_MESSAGE_KEY_COLUMN_COUNT_OUT_OF_RANGE = "export.docx.column.count.out.of.range";
 	
-	protected static final String DOCX_EXPORTER_PROPERTIES_PREFIX = JRPropertiesUtil.PROPERTY_PREFIX + "export.docx.";
-
-	/**
-	 * @deprecated Replaced by {@link DocxReportConfiguration#PROPERTY_IGNORE_HYPERLINK}.
-	 */
-	public static final String PROPERTY_IGNORE_HYPERLINK = DocxReportConfiguration.PROPERTY_IGNORE_HYPERLINK;
+	public static final String DOCX_EXPORTER_PROPERTIES_PREFIX = JRPropertiesUtil.PROPERTY_PREFIX + "export.docx.";
 
 	/**
 	 * This property is used to mark text elements as being hidden either for printing or on-screen display.
@@ -163,7 +158,7 @@ public class JRDocxExporter extends JRAbstractExporter<DocxReportConfiguration, 
 			sinceVersion = PropertyConstants.VERSION_3_7_6,
 			valueType = Boolean.class
 			)
-	public static final String PROPERTY_HIDDEN_TEXT = JRPropertiesUtil.PROPERTY_PREFIX + "export.docx.hidden.text";
+	public static final String PROPERTY_HIDDEN_TEXT = DOCX_EXPORTER_PROPERTIES_PREFIX + "hidden.text";
 
 	/**
 	 *
@@ -212,6 +207,9 @@ public class JRDocxExporter extends JRAbstractExporter<DocxReportConfiguration, 
 	protected DocxRelsHelper relsHelper;
 	protected PropsAppHelper appHelper;
 	protected PropsCoreHelper coreHelper;
+	protected DocxFontHelper docxFontHelper;
+	protected DocxFontTableHelper docxFontTableHelper;
+	protected DocxFontTableRelsHelper docxFontTableRelsHelper;
 	
 	boolean emptyPageState;
 	
@@ -405,10 +403,20 @@ public class JRDocxExporter extends JRAbstractExporter<DocxReportConfiguration, 
 
 		List<ExporterInputItem> items = exporterInput.getItems();
 
+		boolean isEmbedFonts = Boolean.TRUE.equals(configuration.isEmbedFonts());
+		
+		docxFontHelper = 
+			new DocxFontHelper(
+				jasperReportsContext, 
+				docxZip,
+				isEmbedFonts
+				);
+
 		DocxStyleHelper styleHelper = 
 			new DocxStyleHelper(
 				this,
-				docxZip.getStylesEntry().getWriter()
+				docxZip.getStylesEntry().getWriter(),
+				docxFontHelper
 				);
 		styleHelper.export(exporterInput);
 		styleHelper.close();
@@ -418,10 +426,17 @@ public class JRDocxExporter extends JRAbstractExporter<DocxReportConfiguration, 
 				jasperReportsContext,
 				docxZip.getSettingsEntry().getWriter()
 				);
-		settingsHelper.export(jasperPrint);
+		settingsHelper.export(jasperPrint, isEmbedFonts);
 		settingsHelper.close();
 
-		runHelper = new DocxRunHelper(jasperReportsContext, docWriter, getExporterKey());
+		docxFontTableHelper = new DocxFontTableHelper(jasperReportsContext, docxZip.getFontTableEntry().getWriter());
+		docxFontTableHelper.exportHeader();
+		
+		docxFontTableRelsHelper = new DocxFontTableRelsHelper(jasperReportsContext, docxZip.getFontTableRelsEntry().getWriter());
+		docxFontTableRelsHelper.exportHeader();
+		
+		
+		runHelper = new DocxRunHelper(jasperReportsContext, docWriter, docxFontHelper);
 		
 		pageFormat = null;
 		PrintPageFormat oldPageFormat = null;
@@ -493,6 +508,14 @@ public class JRDocxExporter extends JRAbstractExporter<DocxReportConfiguration, 
 
 		coreHelper.exportFooter();
 		coreHelper.close();
+		
+		docxFontHelper.exportFonts();
+
+		docxFontTableHelper.exportFooter();
+		docxFontTableHelper.close();
+
+		docxFontTableRelsHelper.exportFooter();
+		docxFontTableRelsHelper.close();
 
 		docxZip.zipEntries(os);
 
@@ -606,10 +629,10 @@ public class JRDocxExporter extends JRAbstractExporter<DocxReportConfiguration, 
 				if (
 					box != null 
 					&& box.getBottomPadding() != null 
-					&& maxBottomPadding < box.getBottomPadding().intValue()
+					&& maxBottomPadding < box.getBottomPadding()
 					)
 				{
-					maxBottomPadding = box.getBottomPadding().intValue();
+					maxBottomPadding = box.getBottomPadding();
 				}
 				
 				allowRowResize = 
@@ -936,7 +959,7 @@ public class JRDocxExporter extends JRAbstractExporter<DocxReportConfiguration, 
 				elementBackcolor,
 				isNewLineJustified
 				);
-			
+
 			if (localHyperlink)
 			{
 				endHyperlink(true);
@@ -952,10 +975,10 @@ public class JRDocxExporter extends JRAbstractExporter<DocxReportConfiguration, 
 	 */
 	public void exportImage(DocxTableHelper tableHelper, JRPrintImage image, JRExporterGridCell gridCell) throws JRException
 	{
-		int leftPadding = image.getLineBox().getLeftPadding().intValue();
-		int topPadding = image.getLineBox().getTopPadding().intValue();//FIXMEDOCX maybe consider border thickness
-		int rightPadding = image.getLineBox().getRightPadding().intValue();
-		int bottomPadding = image.getLineBox().getBottomPadding().intValue();
+		int leftPadding = image.getLineBox().getLeftPadding();
+		int topPadding = image.getLineBox().getTopPadding();//FIXMEDOCX maybe consider border thickness
+		int rightPadding = image.getLineBox().getRightPadding();
+		int bottomPadding = image.getLineBox().getBottomPadding();
 
 		int availableImageWidth = image.getWidth() - leftPadding - rightPadding;
 		availableImageWidth = availableImageWidth < 0 ? 0 : availableImageWidth;
@@ -1351,7 +1374,7 @@ public class JRDocxExporter extends JRAbstractExporter<DocxReportConfiguration, 
 	}
 
 
-	/**
+	/*
 	 *
 	 *
 	protected void writeImageMap(String imageMapName, JRPrintHyperlink mainHyperlink, List imageMapAreas)
@@ -1425,6 +1448,7 @@ public class JRDocxExporter extends JRAbstractExporter<DocxReportConfiguration, 
 			writer.write("\"");
 		}
 	}
+	*/
 
 
 	/**
@@ -1699,6 +1723,13 @@ public class JRDocxExporter extends JRAbstractExporter<DocxReportConfiguration, 
 	}
 
 	@Override
+	protected JRStyledText getStyledText(JRPrintText textElement, boolean setBackcolor)
+	{
+		return styledTextUtil.getProcessedStyledText(textElement, 
+				setBackcolor ? allSelector : noBackcolorSelector, getExporterKey());
+	}
+
+	@Override
 	public String getExporterKey()
 	{
 		return DOCX_EXPORTER_KEY;
@@ -1709,6 +1740,5 @@ public class JRDocxExporter extends JRAbstractExporter<DocxReportConfiguration, 
 	{
 		return DOCX_EXPORTER_PROPERTIES_PREFIX;
 	}
-	
 }
 

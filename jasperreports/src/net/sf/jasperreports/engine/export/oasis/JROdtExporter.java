@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -132,15 +132,9 @@ public class JROdtExporter extends JRAbstractExporter<OdtReportConfiguration, Od
 	 */
 	public static final String ODT_EXPORTER_KEY = JRPropertiesUtil.PROPERTY_PREFIX + "odt";
 	
-	protected static final String ODT_EXPORTER_PROPERTIES_PREFIX = JRPropertiesUtil.PROPERTY_PREFIX + "export.odt.";
+	public static final String ODT_EXPORTER_PROPERTIES_PREFIX = JRPropertiesUtil.PROPERTY_PREFIX + "export.odt.";
 
 	
-	/**
-	 * @deprecated Replaced by {@link OdtReportConfiguration#PROPERTY_IGNORE_HYPERLINK}.
-	 */
-	public static final String PROPERTY_IGNORE_HYPERLINK = OdtReportConfiguration.PROPERTY_IGNORE_HYPERLINK;
-	
-
 	protected class ExporterContext extends BaseExporterContext implements JROdtExporterContext
 	{
 		TableBuilder tableBuilder = null;
@@ -349,7 +343,7 @@ public class JROdtExporter extends JRAbstractExporter<OdtReportConfiguration, Od
 	 */
 	protected void exportReportToOasisZip(OutputStream os) throws JRException, IOException
 	{
-		OasisZip oasisZip = new FileBufferedOasisZip(OasisZip.MIME_TYPE_ODT);
+		OasisZip oasisZip = new OdtZip();
 
 		ExportZipEntry tempBodyEntry = new FileBufferedZipEntry(null);
 		ExportZipEntry tempStyleEntry = new FileBufferedZipEntry(null);
@@ -735,13 +729,13 @@ public class JROdtExporter extends JRAbstractExporter<OdtReportConfiguration, Od
 	public void exportImage(TableBuilder tableBuilder, JRPrintImage image, JRExporterGridCell gridCell) throws JRException
 	{
 		int topPadding = 
-			Math.max(image.getLineBox().getTopPadding().intValue(), Math.round(image.getLineBox().getTopPen().getLineWidth().floatValue()));
+			Math.max(image.getLineBox().getTopPadding(), Math.round(image.getLineBox().getTopPen().getLineWidth()));
 		int leftPadding = 
-			Math.max(image.getLineBox().getLeftPadding().intValue(), Math.round(image.getLineBox().getLeftPen().getLineWidth().floatValue()));
+			Math.max(image.getLineBox().getLeftPadding(), Math.round(image.getLineBox().getLeftPen().getLineWidth()));
 		int bottomPadding = 
-			Math.max(image.getLineBox().getBottomPadding().intValue(), Math.round(image.getLineBox().getBottomPen().getLineWidth().floatValue()));
+			Math.max(image.getLineBox().getBottomPadding(), Math.round(image.getLineBox().getBottomPen().getLineWidth()));
 		int rightPadding = 
-			Math.max(image.getLineBox().getRightPadding().intValue(), Math.round(image.getLineBox().getRightPen().getLineWidth().floatValue()));
+			Math.max(image.getLineBox().getRightPadding(), Math.round(image.getLineBox().getRightPen().getLineWidth()));
 
 		int availableImageWidth = Math.max(0,image.getWidth() - leftPadding - rightPadding);
 		int availableImageHeight = Math.max(0,image.getHeight() - topPadding - bottomPadding);

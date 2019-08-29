@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -23,6 +23,7 @@
  */
 package net.sf.jasperreports.engine.fill;
 
+import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Locale;
@@ -175,19 +176,15 @@ public abstract class JREvaluator implements DatasetExpressionEvaluator
 		{
 			try
 			{
-				FunctionSupport functionSupport = clazz.newInstance();
+				FunctionSupport functionSupport = clazz.getDeclaredConstructor().newInstance();
 				functionSupport.init(functionContext);
 				functions.put(classId, functionSupport);
 			}
-			catch (IllegalAccessException e)
+			catch (IllegalAccessException | InstantiationException 
+				| NoSuchMethodException | InvocationTargetException e)
 			{
 				throw new JRRuntimeException(e);
 			}
-			catch (InstantiationException e)
-			{
-				throw new JRRuntimeException(e);
-			}
-			
 		}
 		return (T)functions.get(classId);
 	}

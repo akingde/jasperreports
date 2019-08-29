@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -22,6 +22,8 @@
  * along with JasperReports. If not, see <http://www.gnu.org/licenses/>.
  */
 package net.sf.jasperreports.components;
+
+import org.apache.commons.digester.Digester;
 
 import net.sf.jasperreports.components.barbecue.StandardBarbecueComponent;
 import net.sf.jasperreports.components.barcode4j.CodabarComponent;
@@ -75,8 +77,6 @@ import net.sf.jasperreports.engine.xml.JRXmlWriter;
 import net.sf.jasperreports.engine.xml.StyleContainerRule;
 import net.sf.jasperreports.engine.xml.UuidPropertyRule;
 import net.sf.jasperreports.engine.xml.XmlConstantPropertyRule;
-
-import org.apache.commons.digester.Digester;
 
 /**
  * XML digester for built-in component implementations.
@@ -212,10 +212,10 @@ public class ComponentsXmlDigesterConfigurer implements XmlDigesterConfigurer
 		addPatternExpressionRules(digester, barcodePattern);
 		
 		digester.addRule(barcodePattern, 
-				new OrientationRule("orientation", "orientationValue"));
+				new OrientationRule("orientation", "orientation"));
 		digester.addRule(barcodePattern, 
 				new XmlConstantPropertyRule(
-						"textPosition", "textPositionValue",
+						"textPosition", "textPosition",
 						TextPositionEnum.values()));
 	}
 	

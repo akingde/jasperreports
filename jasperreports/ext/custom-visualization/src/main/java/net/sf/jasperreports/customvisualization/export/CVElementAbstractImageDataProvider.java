@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -23,17 +23,21 @@
  */
 package net.sf.jasperreports.customvisualization.export;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import net.sf.jasperreports.customvisualization.CVPrintElement;
-import net.sf.jasperreports.customvisualization.CVUtils;
-import net.sf.jasperreports.engine.*;
-import net.sf.jasperreports.web.util.VelocityUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import net.sf.jasperreports.customvisualization.CVPrintElement;
+import net.sf.jasperreports.customvisualization.CVUtils;
+import net.sf.jasperreports.engine.JRGenericPrintElement;
+import net.sf.jasperreports.engine.JRRuntimeException;
+import net.sf.jasperreports.engine.JasperReportsContext;
+import net.sf.jasperreports.web.util.VelocityUtil;
 
 /**
  * @author Giulio Toffoli (gtoffoli@tibco.com)
@@ -86,6 +90,7 @@ public abstract class CVElementAbstractImageDataProvider implements CVElementIma
 		configuration.put("element", element);
 
 		Map<String, Object> velocityContext = new HashMap<>();
+		velocityContext.put("elementId", CVUtils.getElementId(element));
 		velocityContext.put("scripts", scripts);
 		velocityContext.put("configuration", configuration);
 		velocityContext.put("module", element.getParameterValue(CVPrintElement.MODULE));

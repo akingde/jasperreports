@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -22,7 +22,15 @@
  * along with JasperReports. If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(["jasperreports-loader", "jasperreports-report", "jquery.ui", "jasperreports-url-manager"], function(Loader, Report, $, UrlManager) {
+
+define(function(require) {
+    var Loader = require("jasperreports-loader"),
+        Report = require("jasperreports-report"),
+        $ = require("jquery"),
+        UrlManager = require("jasperreports-url-manager");
+
+    require("jquery-ui/position");
+
 	var Viewer = function(o) {
         var it = this;
 
@@ -278,8 +286,8 @@ define(["jasperreports-loader", "jasperreports-report", "jquery.ui", "jasperrepo
                         webFontsConfig.paths[moduleName] = webfont.path;
                     });
 
-                    require.config(webFontsConfig);
-                    require(modules, function() {
+                    requirejs.config(webFontsConfig);
+                    requirejs(modules, function() {
                         /*
                          IE Webfonts fix
                          */

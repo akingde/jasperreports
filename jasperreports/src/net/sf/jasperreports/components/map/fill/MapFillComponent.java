@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -163,7 +163,9 @@ public class MapFillComponent extends BaseFillComponent implements FillContextPr
 		signature = util.getProperty(propertiesHolder, MapComponent.PROPERTY_SIGNATURE);
 		key = util.getProperty(propertiesHolder, MapComponent.PROPERTY_KEY);
 		googleVersion = util.getProperty(propertiesHolder, MapComponent.PROPERTY_GOOGLE_VERSION);
-		version = util.getProperty(propertiesHolder, MapComponent.PROPERTY_VERSION);
+		@SuppressWarnings("deprecation")
+		String depVersion = util.getProperty(propertiesHolder, MapComponent.PROPERTY_VERSION);
+		version = depVersion;
 		
 		Number lat = (Number)fillContext.evaluate(mapComponent.getLatitudeExpression(), evaluation);
 		latitude = lat == null ? null : lat.floatValue();

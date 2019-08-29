@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -67,7 +67,7 @@ public class ElementIconConverter extends ElementConverter
 				reportConverter.getDefaultStyleProvider());
 		copyElement(reportConverter, element, printImage);
 		
-		printImage.getLineBox().setPadding(3);
+		printImage.getLineBox().setPadding((Integer)3);
 		printImage.setScaleImage(ScaleImageEnum.CLIP);
 		
 		printImage.setRenderer(ResourceRenderer.getInstance(iconLocation, false));

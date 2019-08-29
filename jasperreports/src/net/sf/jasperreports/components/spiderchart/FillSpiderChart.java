@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -22,6 +22,8 @@
  * along with JasperReports. If not, see <http://www.gnu.org/licenses/>.
  */
 package net.sf.jasperreports.components.spiderchart;
+
+import java.lang.reflect.InvocationTargetException;
 
 import net.sf.jasperreports.charts.util.CategoryChartHyperlinkProvider;
 import net.sf.jasperreports.charts.util.ChartHyperlinkProvider;
@@ -52,7 +54,7 @@ import net.sf.jasperreports.renderers.Renderable;
 
 /**
  * 
- * @author sanda zaharia (shertage@users.sourceforge.net)
+ * @author Sanda Zaharia (shertage@users.sourceforge.net)
  */
 public class FillSpiderChart extends BaseFillComponent implements JRFillCloneable
 {
@@ -142,10 +144,14 @@ public class FillSpiderChart extends BaseFillComponent implements JRFillCloneabl
 		
 		customizerClass = chartSettings.getCustomizerClass();
 		if (customizerClass != null && customizerClass.length() > 0) {
-			try {
+			try 
+			{
 				Class<?> myClass = JRClassLoader.loadClassForName(customizerClass);
-				chartCustomizer = (ChartCustomizer) myClass.newInstance();
-			} catch (Exception e) {
+				chartCustomizer = (ChartCustomizer) myClass.getDeclaredConstructor().newInstance();
+			}
+			catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException 
+				| IllegalAccessException | InstantiationException e) 
+			{
 				throw 
 					new JRRuntimeException(
 						EXCEPTION_MESSAGE_KEY_CUSTOMIZER_INSTANCE_ERROR,

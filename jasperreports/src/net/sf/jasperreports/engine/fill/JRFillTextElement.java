@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -105,7 +105,6 @@ public abstract class JRFillTextElement extends JRFillElement implements JRTextE
 	
 	protected final JRLineBox initLineBox;
 	protected final JRParagraph initParagraph;
-	private final boolean consumeSpaceOnOverflow;
 	protected JRLineBox lineBox;
 	protected JRParagraph paragraph;
 
@@ -113,7 +112,9 @@ public abstract class JRFillTextElement extends JRFillElement implements JRTextE
 	private FillStyleObjects fillStyleObjects;
 	private Map<JRStyle, FillStyleObjects> fillStyleObjectsMap;
 	
-	private boolean defaultKeepFullText;
+	private Boolean defaultConsumeSpaceOnOverflow;
+	private boolean dynamicConsumeSpaceOnOverflow;
+	private Boolean defaultKeepFullText;
 	private boolean dynamicKeepFullText;
 
 	/**
@@ -130,17 +131,7 @@ public abstract class JRFillTextElement extends JRFillElement implements JRTextE
 		initLineBox = textElement.getLineBox().clone(this);
 		initParagraph = textElement.getParagraph().clone(this);
 
-		// not supporting property expressions for this
-		this.consumeSpaceOnOverflow = filler.getPropertiesUtil().getBooleanProperty(
-				PROPERTY_CONSUME_SPACE_ON_OVERFLOW, true,
-				// manually falling back to report properties as getParentProperties() is null for textElement
-				textElement, filler.getMainDataset()
-				);
-		
-		this.defaultKeepFullText = filler.getPropertiesUtil().getBooleanProperty( 
-				JRTextElement.PROPERTY_PRINT_KEEP_FULL_TEXT, false,
-				// manually falling back to report properties as getParentProperties() is null for textElement
-				textElement, filler.getMainDataset());
+		this.dynamicConsumeSpaceOnOverflow = hasDynamicProperty(PROPERTY_CONSUME_SPACE_ON_OVERFLOW);
 		this.dynamicKeepFullText = hasDynamicProperty(JRTextElement.PROPERTY_PRINT_KEEP_FULL_TEXT);
 		
 		this.fillStyleObjectsMap = new HashMap<JRStyle, JRFillTextElement.FillStyleObjects>();
@@ -153,10 +144,12 @@ public abstract class JRFillTextElement extends JRFillElement implements JRTextE
 		
 		initLineBox = textElement.getLineBox().clone(this);
 		initParagraph = textElement.getParagraph().clone(this);
-		this.consumeSpaceOnOverflow = textElement.consumeSpaceOnOverflow;
-		
+
+		this.defaultConsumeSpaceOnOverflow = textElement.defaultConsumeSpaceOnOverflow;
+		this.dynamicConsumeSpaceOnOverflow = textElement.dynamicConsumeSpaceOnOverflow;
 		this.defaultKeepFullText = textElement.defaultKeepFullText;
 		this.dynamicKeepFullText = textElement.dynamicKeepFullText;
+
 		this.fillStyleObjectsMap = textElement.fillStyleObjectsMap;
 	}
 
@@ -233,60 +226,6 @@ public abstract class JRFillTextElement extends JRFillElement implements JRTextE
 		return getStyleResolver().getMode(this, ModeEnum.TRANSPARENT);
 	}
 
-	/**
-	 * @deprecated Replaced by {@link #getHorizontalTextAlign()}.
-	 */
-	@Override
-	public net.sf.jasperreports.engine.type.HorizontalAlignEnum getHorizontalAlignmentValue()
-	{
-		return net.sf.jasperreports.engine.type.HorizontalAlignEnum.getHorizontalAlignEnum(getHorizontalTextAlign());
-	}
-		
-	/**
-	 * @deprecated Replaced by {@link #getOwnHorizontalTextAlign()}.
-	 */
-	@Override
-	public net.sf.jasperreports.engine.type.HorizontalAlignEnum getOwnHorizontalAlignmentValue()
-	{
-		return net.sf.jasperreports.engine.type.HorizontalAlignEnum.getHorizontalAlignEnum(getOwnHorizontalTextAlign());
-	}
-		
-	/**
-	 * @deprecated Replaced by {@link #setHorizontalTextAlign(HorizontalTextAlignEnum)}.
-	 */
-	@Override
-	public void setHorizontalAlignment(net.sf.jasperreports.engine.type.HorizontalAlignEnum horizontalAlignmentValue)
-	{
-		setHorizontalTextAlign(net.sf.jasperreports.engine.type.HorizontalAlignEnum.getHorizontalTextAlignEnum(horizontalAlignmentValue));
-	}
-
-	/**
-	 * @deprecated Replaced by {@link #getVerticalTextAlign()}.
-	 */
-	@Override
-	public net.sf.jasperreports.engine.type.VerticalAlignEnum getVerticalAlignmentValue()
-	{
-		return net.sf.jasperreports.engine.type.VerticalAlignEnum.getVerticalAlignEnum(getVerticalTextAlign());
-	}
-		
-	/**
-	 * @deprecated Replaced by {@link #getOwnVerticalTextAlign()}.
-	 */
-	@Override
-	public net.sf.jasperreports.engine.type.VerticalAlignEnum getOwnVerticalAlignmentValue()
-	{
-		return net.sf.jasperreports.engine.type.VerticalAlignEnum.getVerticalAlignEnum(getOwnVerticalTextAlign());
-	}
-		
-	/**
-	 * @deprecated Replaced by {@link #setVerticalTextAlign(VerticalTextAlignEnum)}.
-	 */
-	@Override
-	public void setVerticalAlignment(net.sf.jasperreports.engine.type.VerticalAlignEnum verticalAlignmentValue)
-	{
-		setVerticalTextAlign(net.sf.jasperreports.engine.type.VerticalAlignEnum.getVerticalTextAlignEnum(verticalAlignmentValue));
-	}
-		
 	@Override
 	public HorizontalTextAlignEnum getHorizontalTextAlign()
 	{
@@ -680,7 +619,7 @@ public abstract class JRFillTextElement extends JRFillElement implements JRTextE
 			// the exact text height against the available height
 			int elementTextHeight = (int) getTextHeight() + getLineBox().getTopPadding() + getLineBox().getBottomPadding();
 			boolean textEnded = measuredText.getTextOffset() >= tmpStyledText.getText().length();
-			if (textEnded || !canOverflow || !consumeSpaceOnOverflow)
+			if (textEnded || !canOverflow || !isConsumeSpaceOnOverflow())
 			{
 				setPrepareHeight(elementTextHeight);
 			}
@@ -709,6 +648,28 @@ public abstract class JRFillTextElement extends JRFillElement implements JRTextE
 		setTextTruncateSuffix(measuredText.getTextSuffix());
 		setLineSpacingFactor(measuredText.getLineSpacingFactor());
 		setLeadingOffset(measuredText.getLeadingOffset());
+	}
+	
+	protected boolean isConsumeSpaceOnOverflow()
+	{
+		if (defaultConsumeSpaceOnOverflow == null)
+		{
+			defaultConsumeSpaceOnOverflow = filler.getPropertiesUtil().getBooleanProperty( 
+					PROPERTY_CONSUME_SPACE_ON_OVERFLOW, true,
+					// manually falling back to report properties as getParentProperties() is null for textElement
+					parent, filler.getMainDataset());//TODO
+		}
+		
+		boolean consumeSpaceOnOverflow = defaultConsumeSpaceOnOverflow;
+		if (dynamicConsumeSpaceOnOverflow)
+		{
+			String consumeSpaceOnOverflowProp = getDynamicProperties().getProperty(PROPERTY_CONSUME_SPACE_ON_OVERFLOW);
+			if (consumeSpaceOnOverflowProp != null)
+			{
+				consumeSpaceOnOverflow = JRPropertiesUtil.asBoolean(consumeSpaceOnOverflowProp);
+			}
+		}
+		return consumeSpaceOnOverflow;
 	}
 	
 //	public int getPrintElementHeight()
@@ -750,6 +711,9 @@ public abstract class JRFillTextElement extends JRFillElement implements JRTextE
 		return providerStyle == null || providerStyle.isOwnBold() == null ? ((JRFont)parent).isOwnBold() : providerStyle.isOwnBold();
 	}
 
+	/**
+	 * @deprecated Replaced by {@link #setBold(Boolean)}.
+	 */
 	@Override
 	public void setBold(boolean isBold)
 	{
@@ -779,6 +743,9 @@ public abstract class JRFillTextElement extends JRFillElement implements JRTextE
 		return providerStyle == null || providerStyle.isOwnItalic() == null ? ((JRFont)parent).isOwnItalic() : providerStyle.isOwnItalic();
 	}
 
+	/**
+	 * @deprecated Replaced by {@link #setItalic(Boolean)}.
+	 */
 	@Override
 	public void setItalic(boolean isItalic)
 	{
@@ -807,6 +774,9 @@ public abstract class JRFillTextElement extends JRFillElement implements JRTextE
 		return providerStyle == null || providerStyle.isOwnUnderline() == null ? ((JRFont)parent).isOwnUnderline() : providerStyle.isOwnUnderline();
 	}
 
+	/**
+	 * @deprecated Replaced by {@link #setUnderline(Boolean)}.
+	 */
 	@Override
 	public void setUnderline(boolean isUnderline)
 	{
@@ -835,6 +805,9 @@ public abstract class JRFillTextElement extends JRFillElement implements JRTextE
 		return providerStyle == null || providerStyle.isOwnStrikeThrough() == null ? ((JRFont)parent).isOwnStrikeThrough() : providerStyle.isOwnStrikeThrough();
 	}
 
+	/**
+	 * @deprecated Replaced by {@link #setStrikeThrough(Boolean)}.
+	 */
 	@Override
 	public void setStrikeThrough(boolean isStrikeThrough)
 	{
@@ -867,43 +840,6 @@ public abstract class JRFillTextElement extends JRFillElement implements JRTextE
 	public void setFontSize(Float size)
 	{
 		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * @deprecated Replaced by {@link #getFontsize()}.
-	 */
-	@Override
-	public int getFontSize()
-	{
-		return (int)getFontsize();
-	}
-
-	/**
-	 * @deprecated Replaced by {@link #getOwnFontsize()}.
-	 */
-	@Override
-	public Integer getOwnFontSize()
-	{
-		Float fontSize = getOwnFontsize();
-		return fontSize == null ? null : fontSize.intValue();
-	}
-
-	/**
-	 * @deprecated Replaced by {@link #setFontSize(Float)}.
-	 */
-	@Override
-	public void setFontSize(int size)
-	{
-		setFontSize((float)size);
-	}
-
-	/**
-	 * @deprecated Replaced by {@link #setFontSize(Float)}.
-	 */
-	@Override
-	public void setFontSize(Integer size)
-	{
-		setFontSize(size == null ? null : size.floatValue());
 	}
 
 	@Override
@@ -956,6 +892,9 @@ public abstract class JRFillTextElement extends JRFillElement implements JRTextE
 		return providerStyle == null || providerStyle.isOwnPdfEmbedded() == null ? ((JRFont)parent).isOwnPdfEmbedded() : providerStyle.isOwnPdfEmbedded();
 	}
 
+	/**
+	 * @deprecated Replaced by {@link #setPdfEmbedded(Boolean)}.
+	 */
 	@Override
 	public void setPdfEmbedded(boolean isPdfEmbedded)
 	{
@@ -1083,7 +1022,7 @@ public abstract class JRFillTextElement extends JRFillElement implements JRTextE
 			
 			if (endIndex < fullText.length())
 			{
-				printText.setTextTruncateIndex(Integer.valueOf(endIndex));
+				printText.setTextTruncateIndex(endIndex);
 			}
 		}
 		else
@@ -1110,6 +1049,14 @@ public abstract class JRFillTextElement extends JRFillElement implements JRTextE
 	
 	protected boolean keepFullText()
 	{
+		if (defaultKeepFullText == null)
+		{
+			defaultKeepFullText = filler.getPropertiesUtil().getBooleanProperty( 
+					JRTextElement.PROPERTY_PRINT_KEEP_FULL_TEXT, false,
+					// manually falling back to report properties as getParentProperties() is null for textElement
+					parent, filler.getMainDataset());//TODO
+		}
+		
 		boolean keepFullText = defaultKeepFullText;
 		if (dynamicKeepFullText)
 		{

@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -123,7 +123,7 @@ public class JasperApp extends AbstractSampleApp
 		
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("ReportTitle", "The First Jasper Report Ever");
-		parameters.put("MaxOrderID", new Integer(10500));
+		parameters.put("MaxOrderID", 10500);
 		parameters.put("SummaryImage", image);
 		
 		JasperFillManager.fillReportToFile("build/reports/FirstJasper.jasper", parameters, getDemoHsqldbConnection());
@@ -528,7 +528,7 @@ public class JasperApp extends AbstractSampleApp
 		
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("ReportTitle", "The First Jasper Report Ever");
-		parameters.put("MaxOrderID", new Integer(10500));
+		parameters.put("MaxOrderID", 10500);
 		parameters.put("SummaryImage", image);
 		
 		JasperRunManager.runReportToPdfFile("build/reports/FirstJasper.jasper", parameters, getDemoHsqldbConnection());

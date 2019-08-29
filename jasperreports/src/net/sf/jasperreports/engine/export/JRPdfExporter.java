@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -367,11 +367,6 @@ public class JRPdfExporter extends JRAbstractExporter<PdfReportConfiguration, Pd
 	public static final String EXCEPTION_MESSAGE_KEY_FONT_LOADING_ERROR = "export.pdf.font.loading.error";
 	public static final String EXCEPTION_MESSAGE_KEY_REPORT_GENERATION_ERROR = "export.pdf.report.generation.error";
 	
-	/**
-	 * @deprecated Replaced by {@link PdfReportConfiguration#PROPERTY_IGNORE_HYPERLINK}.
-	 */
-	public static final String PROPERTY_IGNORE_HYPERLINK = PdfReportConfiguration.PROPERTY_IGNORE_HYPERLINK;
-
 	/**
 	 * Prefix of properties that specify font files for the PDF exporter.
 	 */
@@ -1132,7 +1127,7 @@ public class JRPdfExporter extends JRAbstractExporter<PdfReportConfiguration, Pd
 		int lcOffsetX = getOffsetX();
 		int lcOffsetY = getOffsetY();
 
-		float lineWidth = line.getLinePen().getLineWidth().floatValue(); 
+		float lineWidth = line.getLinePen().getLineWidth(); 
 		if (lineWidth > 0f)
 		{
 			preparePen(pdfContentByte, line.getLinePen(), PdfContentByte.LINE_CAP_BUTT);
@@ -1321,7 +1316,7 @@ public class JRPdfExporter extends JRAbstractExporter<PdfReportConfiguration, Pd
 
 		preparePen(pdfContentByte, rectangle.getLinePen(), PdfContentByte.LINE_CAP_PROJECTING_SQUARE);
 
-		float lineWidth = rectangle.getLinePen().getLineWidth().floatValue();
+		float lineWidth = rectangle.getLinePen().getLineWidth();
 		int lcOffsetX = getOffsetX();
 		int lcOffsetY = getOffsetY();
 		
@@ -1393,7 +1388,7 @@ public class JRPdfExporter extends JRAbstractExporter<PdfReportConfiguration, Pd
 
 		preparePen(pdfContentByte, ellipse.getLinePen(), PdfContentByte.LINE_CAP_PROJECTING_SQUARE);
 
-		float lineWidth = ellipse.getLinePen().getLineWidth().floatValue();
+		float lineWidth = ellipse.getLinePen().getLineWidth();
 		int lcOffsetX = getOffsetX();
 		int lcOffsetY = getOffsetY();
 		
@@ -1523,13 +1518,13 @@ public class JRPdfExporter extends JRAbstractExporter<PdfReportConfiguration, Pd
 
 
 		if (
-			printImage.getLineBox().getTopPen().getLineWidth().floatValue() <= 0f &&
-			printImage.getLineBox().getLeftPen().getLineWidth().floatValue() <= 0f &&
-			printImage.getLineBox().getBottomPen().getLineWidth().floatValue() <= 0f &&
-			printImage.getLineBox().getRightPen().getLineWidth().floatValue() <= 0f
+			printImage.getLineBox().getTopPen().getLineWidth() <= 0f &&
+			printImage.getLineBox().getLeftPen().getLineWidth() <= 0f &&
+			printImage.getLineBox().getBottomPen().getLineWidth() <= 0f &&
+			printImage.getLineBox().getRightPen().getLineWidth() <= 0f
 			)
 		{
-			if (printImage.getLinePen().getLineWidth().floatValue() > 0f)
+			if (printImage.getLinePen().getLineWidth() > 0f)
 			{
 				exportPen(printImage.getLinePen(), printImage);
 			}
@@ -1562,10 +1557,10 @@ public class JRPdfExporter extends JRAbstractExporter<PdfReportConfiguration, Pd
 			this.printImage = printImage;
 			this.imageRenderersCache = printImage.isUsingCache() ? renderersCache : new RenderersCache(getJasperReportsContext());
 			
-			topPadding = printImage.getLineBox().getTopPadding().intValue();
-			leftPadding = printImage.getLineBox().getLeftPadding().intValue();
-			bottomPadding = printImage.getLineBox().getBottomPadding().intValue();
-			rightPadding = printImage.getLineBox().getRightPadding().intValue();
+			topPadding = printImage.getLineBox().getTopPadding();
+			leftPadding = printImage.getLineBox().getLeftPadding();
+			bottomPadding = printImage.getLineBox().getBottomPadding();
+			rightPadding = printImage.getLineBox().getRightPadding();
 
 			int tmpAvailableImageWidth = printImage.getWidth() - leftPadding - rightPadding;
 			availableImageWidth = tmpAvailableImageWidth < 0 ? 0 : tmpAvailableImageWidth;
@@ -2019,7 +2014,7 @@ public class JRPdfExporter extends JRAbstractExporter<PdfReportConfiguration, Pd
 						{
 							chunk.setRemoteGoto(
 								link.getHyperlinkReference(),
-								link.getHyperlinkPage().intValue()
+								link.getHyperlinkPage()
 								);
 						}
 						break;
@@ -2290,7 +2285,7 @@ public class JRPdfExporter extends JRAbstractExporter<PdfReportConfiguration, Pd
 			}
 
 			pdfEncoding = family.getPdfEncoding() == null ? jrFont.getPdfEncoding() : family.getPdfEncoding();
-			isPdfEmbedded = family.isPdfEmbedded() == null ? jrFont.isPdfEmbedded() : family.isPdfEmbedded().booleanValue(); 
+			isPdfEmbedded = family.isPdfEmbedded() == null ? jrFont.isPdfEmbedded() : family.isPdfEmbedded(); 
 			isPdfSimulatedBold = jrFont.isBold() && ((pdfFontStyle & java.awt.Font.BOLD) == 0); 
 			isPdfSimulatedItalic = jrFont.isItalic() && ((pdfFontStyle & java.awt.Font.ITALIC) == 0); 
 		}
@@ -2675,10 +2670,10 @@ public class JRPdfExporter extends JRAbstractExporter<PdfReportConfiguration, Pd
 		JRPen rightPen, 
 		JRPrintElement element)
 	{
-		if (topPen.getLineWidth().floatValue() > 0f)
+		if (topPen.getLineWidth() > 0f)
 		{
-			float leftOffset = leftPen.getLineWidth().floatValue() / 2;
-			float rightOffset = rightPen.getLineWidth().floatValue() / 2;
+			float leftOffset = leftPen.getLineWidth() / 2;
+			float rightOffset = rightPen.getLineWidth() / 2;
 			int lcOffsetX = getOffsetX();
 			int lcOffsetY = getOffsetY();
 			
@@ -2686,7 +2681,7 @@ public class JRPdfExporter extends JRAbstractExporter<PdfReportConfiguration, Pd
 			
 			if (topPen.getLineStyleValue() == LineStyleEnum.DOUBLE)
 			{
-				float topOffset = topPen.getLineWidth().floatValue();
+				float topOffset = topPen.getLineWidth();
 
 				pdfContentByte.moveTo(
 					element.getX() + lcOffsetX - leftOffset,
@@ -2729,10 +2724,10 @@ public class JRPdfExporter extends JRAbstractExporter<PdfReportConfiguration, Pd
 	 */
 	protected void exportLeftPen(JRPen topPen, JRPen leftPen, JRPen bottomPen, JRPrintElement element)
 	{
-		if (leftPen.getLineWidth().floatValue() > 0f)
+		if (leftPen.getLineWidth() > 0f)
 		{
-			float topOffset = topPen.getLineWidth().floatValue() / 2;
-			float bottomOffset = bottomPen.getLineWidth().floatValue() / 2;
+			float topOffset = topPen.getLineWidth() / 2;
+			float bottomOffset = bottomPen.getLineWidth() / 2;
 			int lcOffsetX = getOffsetX();
 			int lcOffsetY = getOffsetY();
 
@@ -2740,7 +2735,7 @@ public class JRPdfExporter extends JRAbstractExporter<PdfReportConfiguration, Pd
 
 			if (leftPen.getLineStyleValue() == LineStyleEnum.DOUBLE)
 			{
-				float leftOffset = leftPen.getLineWidth().floatValue();
+				float leftOffset = leftPen.getLineWidth();
 
 				pdfContentByte.moveTo(
 					element.getX() + lcOffsetX - leftOffset / 3,
@@ -2783,10 +2778,10 @@ public class JRPdfExporter extends JRAbstractExporter<PdfReportConfiguration, Pd
 	 */
 	protected void exportBottomPen(JRPen leftPen, JRPen bottomPen, JRPen rightPen, JRPrintElement element)
 	{
-		if (bottomPen.getLineWidth().floatValue() > 0f)
+		if (bottomPen.getLineWidth() > 0f)
 		{
-			float leftOffset = leftPen.getLineWidth().floatValue() / 2;
-			float rightOffset = rightPen.getLineWidth().floatValue() / 2;
+			float leftOffset = leftPen.getLineWidth() / 2;
+			float rightOffset = rightPen.getLineWidth() / 2;
 			int lcOffsetX = getOffsetX();
 			int lcOffsetY = getOffsetY();
 			
@@ -2794,7 +2789,7 @@ public class JRPdfExporter extends JRAbstractExporter<PdfReportConfiguration, Pd
 			
 			if (bottomPen.getLineStyleValue() == LineStyleEnum.DOUBLE)
 			{
-				float bottomOffset = bottomPen.getLineWidth().floatValue();
+				float bottomOffset = bottomPen.getLineWidth();
 
 				pdfContentByte.moveTo(
 					element.getX() + lcOffsetX - leftOffset,
@@ -2837,10 +2832,10 @@ public class JRPdfExporter extends JRAbstractExporter<PdfReportConfiguration, Pd
 	 */
 	protected void exportRightPen(JRPen topPen, JRPen bottomPen, JRPen rightPen, JRPrintElement element)
 	{
-		if (rightPen.getLineWidth().floatValue() > 0f)
+		if (rightPen.getLineWidth() > 0f)
 		{
-			float topOffset = topPen.getLineWidth().floatValue() / 2;
-			float bottomOffset = bottomPen.getLineWidth().floatValue() / 2;
+			float topOffset = topPen.getLineWidth() / 2;
+			float bottomOffset = bottomPen.getLineWidth() / 2;
 			int lcOffsetX = getOffsetX();
 			int lcOffsetY = getOffsetY();
 
@@ -2848,7 +2843,7 @@ public class JRPdfExporter extends JRAbstractExporter<PdfReportConfiguration, Pd
 
 			if (rightPen.getLineStyleValue() == LineStyleEnum.DOUBLE)
 			{
-				float rightOffset = rightPen.getLineWidth().floatValue();
+				float rightOffset = rightPen.getLineWidth();
 
 				pdfContentByte.moveTo(
 					element.getX() + lcOffsetX + element.getWidth() + rightOffset / 3,
@@ -2891,7 +2886,7 @@ public class JRPdfExporter extends JRAbstractExporter<PdfReportConfiguration, Pd
 	 */
 	private static void preparePen(PdfContentByte pdfContentByte, JRPen pen, int lineCap)
 	{
-		float lineWidth = pen.getLineWidth().floatValue();
+		float lineWidth = pen.getLineWidth();
 
 		if (lineWidth <= 0)
 		{

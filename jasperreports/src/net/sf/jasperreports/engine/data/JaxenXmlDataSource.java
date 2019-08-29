@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -29,18 +29,19 @@ import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.util.xml.JRXmlDocumentProducer;
-import net.sf.jasperreports.engine.util.xml.JaxenNsAwareXPathExecuter;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.util.xml.JRXmlDocumentProducer;
+import net.sf.jasperreports.engine.util.xml.JaxenNsAwareXPathExecuter;
+
 /**
  * @author Narcis Marcu (narcism@users.sourceforge.net)
  */
-public class JaxenXmlDataSource extends AbstractXmlDataSource {
+public class JaxenXmlDataSource extends AbstractXmlDataSource<JaxenXmlDataSource> 
+{
 
 	// the xml document
 	private Document document;
@@ -277,7 +278,7 @@ public class JaxenXmlDataSource extends AbstractXmlDataSource {
 	}
 
 	@Override
-	public AbstractXmlDataSource subDataSource(String selectExpr)
+	public JaxenXmlDataSource subDataSource(String selectExpr)
 			throws JRException {
 		Document doc = subDocument();
 		JaxenXmlDataSource subDataSource = new JaxenXmlDataSource(doc, selectExpr);
@@ -291,7 +292,7 @@ public class JaxenXmlDataSource extends AbstractXmlDataSource {
 	}
 
 	@Override
-	public AbstractXmlDataSource dataSource(String selectExpr)
+	public JaxenXmlDataSource dataSource(String selectExpr)
 			throws JRException {
 		JaxenXmlDataSource subDataSource = new JaxenXmlDataSource(document, selectExpr);
 		subDataSource.setTextAttributes(this);

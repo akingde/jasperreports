@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -96,7 +96,7 @@ public class JRPrintImageFactory extends JRBaseFactory
 		if (isLazy != null && isLazy.length() > 0)
 		{
 			//we use a resource renderer just to pass the value of isLazy flag to image source factory
-			image.setRenderer(ResourceRenderer.getInstance("", Boolean.valueOf(isLazy).booleanValue()));
+			image.setRenderer(ResourceRenderer.getInstance("", Boolean.valueOf(isLazy)));
 		}
 
 		return image;

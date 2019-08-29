@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -442,14 +442,6 @@ public class JRDesignChart extends JRDesignElement implements JRChart
 	}
 		
 	/**
-	 * @deprecated Replaced by {@link #setHyperlinkType(HyperlinkTypeEnum)}.
-	 */
-	public void setHyperlinkType(byte hyperlinkType)
-	{
-		setHyperlinkType(HyperlinkTypeEnum.getByValue(hyperlinkType));
-	}
-		
-	/**
 	 * Sets the link type as a built-in hyperlink type.
 	 * 
 	 * @param hyperlinkType the built-in hyperlink type
@@ -464,14 +456,6 @@ public class JRDesignChart extends JRDesignElement implements JRChart
 	public byte getHyperlinkTarget()
 	{
 		return JRHyperlinkHelper.getHyperlinkTarget(this);
-	}
-		
-	/**
-	 * @deprecated Replaced by {@link #setHyperlinkTarget(HyperlinkTargetEnum)}.
-	 */
-	public void setHyperlinkTarget(byte hyperlinkTarget)
-	{
-		setHyperlinkTarget(HyperlinkTargetEnum.getByValue(hyperlinkTarget));
 	}
 		
 	/**
@@ -1018,7 +1002,7 @@ public class JRDesignChart extends JRDesignElement implements JRChart
 			{
 				legendPositionValue = EdgeEnum.getByValue(legendPosition);
 				titlePositionValue = EdgeEnum.getByValue(titlePosition);
-				showLegend = Boolean.valueOf(isShowLegend);
+				showLegend = isShowLegend;
 			}
 			else
 			{

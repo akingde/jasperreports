@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -52,6 +52,8 @@ import net.sf.jasperreports.data.provider.DataSourceProviderDataAdapter;
 import net.sf.jasperreports.data.provider.DataSourceProviderDataAdapterService;
 import net.sf.jasperreports.data.qe.QueryExecuterDataAdapter;
 import net.sf.jasperreports.data.qe.QueryExecuterDataAdapterService;
+import net.sf.jasperreports.data.random.RandomDataAdapter;
+import net.sf.jasperreports.data.random.RandomDataAdapterService;
 import net.sf.jasperreports.data.xls.XlsDataAdapter;
 import net.sf.jasperreports.data.xls.XlsDataAdapterService;
 import net.sf.jasperreports.data.xlsx.XlsxDataAdapter;
@@ -104,6 +106,10 @@ public class DefaultDataAdapterServiceFactory implements DataAdapterContributorF
 		else if (dataAdapter instanceof EmptyDataAdapter)
 		{
 			dataAdapterService = new EmptyDataAdapterService(context, (EmptyDataAdapter)dataAdapter);
+		}
+		else if (dataAdapter instanceof RandomDataAdapter)
+		{
+			dataAdapterService = new RandomDataAdapterService(context, (RandomDataAdapter)dataAdapter);
 		}
 		else if (dataAdapter instanceof JndiDataAdapter)
 		{

@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -22,7 +22,15 @@
  * along with JasperReports. If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(["jquery.ui", "text!jive.crosstab.templates.tmpl", "text!jive.crosstab.templates.styles.css", "text!jive.i18n.tmpl"], function($, templates, templateCss, jivei18nText) {
+define(function(require) {
+
+    var $ = require("jquery"),
+        templates = require("text!jive.crosstab.templates.tmpl"),
+        templateCss = require("text!jive.crosstab.templates.styles.css"),
+        jivei18nText = require("text!jive.i18n.tmpl");
+
+    require("jquery-ui/position");
+
 	var jivei18n = JSON.parse(jivei18nText),
         i18nfn = function (key) {
 		if (jivei18n.hasOwnProperty(key)) {
@@ -48,46 +56,40 @@ define(["jquery.ui", "text!jive.crosstab.templates.tmpl", "text!jive.crosstab.te
         isFirefox: /firefox/i.test(navigator.userAgent),
         canFloat: null,
 		init: function(report) {
-			var ic = this,
+			var self = this,
                 hasFloatingHeaders = true;
-			ic.reportInstance = report;
-            ic.isDashboard = $('body').is('.dashboardViewFrame');
-            ic.canFloat = true;
+			self.reportInstance = report;
+            self.isDashboard = $('body').is('.dashboardViewFrame');
+            self.canFloat = true;
 
-			if (!ic.initialized) {
+            this.removeFloatingElements();
+
+			if (!self.initialized) {
                 /**
                  * "beforeSearchAdvance" event triggered from the viewer, before highlighting search results
                  * with function "element.scrollIntoView(false)" which seems to be asynchronous;
                  * that's why the setTimeout is used here to delay the release of the canFloat flag
                 */
-                ic.reportInstance.on("beforeSearchAdvance", function(evt) {
-                    ic.canFloat = false;
+                self.reportInstance.on("beforeSearchAdvance", function(evt) {
+                    self.canFloat = false;
 
-                    ic.hideFloatingElements();
+                    self.hideFloatingElements();
 
                     // releasing this flag after 1.5 seconds
                     setTimeout(function() {
-                        ic.canFloat = true;
+                        self.canFloat = true;
                     }, 1500);
                 });
 
-                ic.reportInstance.on("beforeAction", function(evt) {
+                self.reportInstance.on("beforeAction", function(evt) {
                     // prevent floating
-                    ic.canFloat = false;
+                    self.canFloat = false;
 
                     // prevent caching floating headers
-                    ic.floatingColumnHeader && ic.floatingColumnHeader.remove();
-                    ic.floatingRowHeader && ic.floatingRowHeader.remove();
-                    ic.floatingCrossHeader && ic.floatingCrossHeader.remove();
-
-                    ic.floatingColumnHeader = null;
-                    ic.floatingRowHeader = null;
-                    ic.floatingCrossHeader = null;
-
-                    ic.isFloatingColumnHeader = ic.isFloatingRowHeader = ic.isFloatingCrossHeader = null;
+                    self.removeFloatingElements();
 
                     // hide column selection if visible
-                    ic.active && ic.hide();
+                    self.active && self.hide();
                 });
 
 				$('head').append('<style id="jivext-stylesheet">' + templateCss + '</style>');
@@ -96,8 +98,8 @@ define(["jquery.ui", "text!jive.crosstab.templates.tmpl", "text!jive.crosstab.te
 				$('#jivext_components').empty();
 				$('#jivext_components').append(templates);
 				
-				ic.getReportContainer().on('click touchend', function(){
-					ic.hide();
+				self.getReportContainer().on('click touchend', function(){
+					self.hide();
 					//TODO 
 					//$('body').trigger('jive.inactive');
 				});
@@ -111,15 +113,15 @@ define(["jquery.ui", "text!jive.crosstab.templates.tmpl", "text!jive.crosstab.te
                 });
 
                 if (hasFloatingHeaders) {
-                    ic.setScrollableHeader(ic.isDashboard);
-                    ic.$scrollContainer = $('div#reportViewFrame .body').first();
+                    self.setScrollableHeader(self.isDashboard);
+                    self.$scrollContainer = $('div#reportViewFrame .body').first();
                 }
 
-				ic.initialized = true;
+				self.initialized = true;
 			}
 				
 			$.each(report.components.crosstab, function() {
-				ic.initCrosstab(this);
+				self.initCrosstab(this);
 			});
 		},
 		actions: {
@@ -444,6 +446,18 @@ define(["jquery.ui", "text!jive.crosstab.templates.tmpl", "text!jive.crosstab.te
             this.isFloatingColumnHeader && this.floatingColumnHeader.hide();
             this.isFloatingRowHeader && this.floatingRowHeader.hide();
             this.isFloatingCrossHeader && this.floatingCrossHeader.hide();
+        },
+        removeFloatingElements: function() {
+            var self = this;
+            self.floatingColumnHeader && self.floatingColumnHeader.remove();
+            self.floatingRowHeader && self.floatingRowHeader.remove();
+            self.floatingCrossHeader && self.floatingCrossHeader.remove();
+
+            self.floatingColumnHeader = null;
+            self.floatingRowHeader = null;
+            self.floatingCrossHeader = null;
+
+            self.isFloatingColumnHeader = self.isFloatingRowHeader = self.isFloatingCrossHeader = null;
         },
         scrollColumnHeader: function() {
             var it = this,

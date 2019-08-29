@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -158,60 +158,6 @@ public class JRTemplatePrintImage extends JRTemplatePrintGraphicElement implemen
 	{
 	}
 
-	/**
-	 * @deprecated Replaced by {@link #getHorizontalImageAlign()}.
-	 */
-	@Override
-	public net.sf.jasperreports.engine.type.HorizontalAlignEnum getHorizontalAlignmentValue()
-	{
-		return ((JRTemplateImage)this.template).getHorizontalAlignmentValue();
-	}
-		
-	/**
-	 * @deprecated Replaced by {@link #getOwnHorizontalImageAlign()}.
-	 */
-	@Override
-	public net.sf.jasperreports.engine.type.HorizontalAlignEnum getOwnHorizontalAlignmentValue()
-	{
-		return ((JRTemplateImage)this.template).getOwnHorizontalAlignmentValue();
-	}
-		
-	/**
-	 * @deprecated Replaced by {@link #setHorizontalImageAlign(HorizontalImageAlignEnum)}.
-	 */
-	@Override
-	public void setHorizontalAlignment(net.sf.jasperreports.engine.type.HorizontalAlignEnum horizontalAlignment)
-	{
-		throw new UnsupportedOperationException();
-	}
-		
-	/**
-	 * @deprecated Replaced by {@link #getVerticalImageAlign()}.
-	 */
-	@Override
-	public net.sf.jasperreports.engine.type.VerticalAlignEnum getVerticalAlignmentValue()
-	{
-		return ((JRTemplateImage)this.template).getVerticalAlignmentValue();
-	}
-		
-	/**
-	 * @deprecated Replaced by {@link #getOwnVerticalImageAlign()}.
-	 */
-	@Override
-	public net.sf.jasperreports.engine.type.VerticalAlignEnum getOwnVerticalAlignmentValue()
-	{
-		return ((JRTemplateImage)this.template).getOwnVerticalAlignmentValue();
-	}
-		
-	/**
-	 * @deprecated Replaced by {@link #setVerticalImageAlign(VerticalImageAlignEnum)}.
-	 */
-	@Override
-	public void setVerticalAlignment(net.sf.jasperreports.engine.type.VerticalAlignEnum verticalAlignment)
-	{
-		throw new UnsupportedOperationException();
-	}
-		
 	@Override
 	public HorizontalImageAlignEnum getHorizontalImageAlign()
 	{

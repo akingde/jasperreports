@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -54,7 +54,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.collections.map.ReferenceMap;
+import org.apache.commons.collections4.map.ReferenceMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.common.usermodel.HyperlinkType;
@@ -142,7 +142,7 @@ import net.sf.jasperreports.renderers.ResourceRenderer;
 
 
 /**
- * @author sanda zaharia (shertage@users.sourceforge.net)
+ * @author Sanda Zaharia (shertage@users.sourceforge.net)
  */
 public class JRXlsMetadataExporter extends JRXlsAbstractMetadataExporter<XlsMetadataReportConfiguration, XlsMetadataExporterConfiguration, JRXlsExporterContext> 
 {
@@ -158,7 +158,7 @@ public class JRXlsMetadataExporter extends JRXlsAbstractMetadataExporter<XlsMeta
 	public static short MIN_COLOR_INDEX = 10;	/* Indexes from 0 to 9 are reserved */
 	public static String CURRENT_ROW_HEIGHT = "CURRENT_ROW_HEIGHT";
 	
-	private static Map<Color,HSSFColor> hssfColorsCache = new ReferenceMap();
+	private static Map<Color,HSSFColor> hssfColorsCache = new ReferenceMap<Color,HSSFColor>();
 
 	protected final DateFormat isoDateFormat = JRDataUtils.getIsoDateFormat();
 	
@@ -183,8 +183,8 @@ public class JRXlsMetadataExporter extends JRXlsAbstractMetadataExporter<XlsMeta
 	/**
 	 *
 	 */
-	protected short whiteIndex = (new HSSFColor.WHITE()).getIndex();
-	protected short blackIndex = (new HSSFColor.BLACK()).getIndex();
+	protected short whiteIndex = HSSFColor.HSSFColorPredefined.WHITE.getIndex();
+	protected short blackIndex = HSSFColor.HSSFColorPredefined.BLACK.getIndex();
 	protected short customColorIndex = MIN_COLOR_INDEX;
 
 	protected FillPatternType backgroundMode = FillPatternType.SOLID_FOREGROUND;
@@ -303,7 +303,7 @@ public class JRXlsMetadataExporter extends JRXlsAbstractMetadataExporter<XlsMeta
 			}
 		}
 		emptyCellStyle = workbook.createCellStyle();
-		emptyCellStyle.setFillForegroundColor((new HSSFColor.WHITE()).getIndex());
+		emptyCellStyle.setFillForegroundColor(HSSFColor.HSSFColorPredefined.WHITE.getIndex());
 		emptyCellStyle.setFillPattern(backgroundMode);
 		dataFormat = workbook.createDataFormat();
 		createHelper = workbook.getCreationHelper();
@@ -1295,13 +1295,13 @@ public class JRXlsMetadataExporter extends JRXlsAbstractMetadataExporter<XlsMeta
 			this.imageRenderersCache = imageElement.isUsingCache() ? renderersCache : new RenderersCache(getJasperReportsContext());
 			
 			topPadding =
-				Math.max(imageElement.getLineBox().getTopPadding().intValue(), getImageBorderCorrection(imageElement.getLineBox().getTopPen()));
+				Math.max(imageElement.getLineBox().getTopPadding(), getImageBorderCorrection(imageElement.getLineBox().getTopPen()));
 			leftPadding =
-				Math.max(imageElement.getLineBox().getLeftPadding().intValue(), getImageBorderCorrection(imageElement.getLineBox().getLeftPen()));
+				Math.max(imageElement.getLineBox().getLeftPadding(), getImageBorderCorrection(imageElement.getLineBox().getLeftPen()));
 			bottomPadding =
-				Math.max(imageElement.getLineBox().getBottomPadding().intValue(), getImageBorderCorrection(imageElement.getLineBox().getBottomPen()));
+				Math.max(imageElement.getLineBox().getBottomPadding(), getImageBorderCorrection(imageElement.getLineBox().getBottomPen()));
 			rightPadding =
-				Math.max(imageElement.getLineBox().getRightPadding().intValue(), getImageBorderCorrection(imageElement.getLineBox().getRightPen()));
+				Math.max(imageElement.getLineBox().getRightPadding(), getImageBorderCorrection(imageElement.getLineBox().getRightPen()));
 
 			int tmpAvailableImageWidth = imageElement.getWidth() - leftPadding - rightPadding;
 			availableImageWidth = tmpAvailableImageWidth < 0 ? 0 : tmpAvailableImageWidth;
@@ -1588,7 +1588,7 @@ public class JRXlsMetadataExporter extends JRXlsAbstractMetadataExporter<XlsMeta
 	 *
 	 */
 	protected static BorderStyle getBorderStyle(JRPen pen) {
-		float lineWidth = pen.getLineWidth().floatValue();
+		float lineWidth = pen.getLineWidth();
 
 		if (lineWidth > 0f) {
 			switch (pen.getLineStyleValue()) {
@@ -1739,14 +1739,6 @@ public class JRXlsMetadataExporter extends JRXlsAbstractMetadataExporter<XlsMeta
 		}
 	}
 	
-	/**
-	 * @deprecated to be removed; replaced by {@link #setFreezePane(int, int)}
-	 */ 
-	@Override
-	protected void setFreezePane(int rowIndex, int colIndex, boolean isRowEdge, boolean isColumnEdge) {
-		setFreezePane(rowIndex, colIndex);
-	}
-
 	@Override
 	protected void setAutoFilter(String autoFilterRange) {
 		//TODO: recalculate autoFilterRange depending on exported columns
@@ -2126,7 +2118,7 @@ public class JRXlsMetadataExporter extends JRXlsAbstractMetadataExporter<XlsMeta
 		protected static final int BOTTOM = 2;
 		protected static final int RIGHT = 3;
 
-		protected BorderStyle[] borderStyle = new BorderStyle[4];
+		protected BorderStyle[] borderStyle = new BorderStyle[] {BorderStyle.NONE, BorderStyle.NONE, BorderStyle.NONE, BorderStyle.NONE};
 		protected short[] borderColour = new short[4];
 		private int hash;
 

@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -115,6 +115,7 @@ import net.sf.jasperreports.export.ExportInterruptedException;
 import net.sf.jasperreports.export.ExporterInputItem;
 import net.sf.jasperreports.export.HtmlExporterConfiguration;
 import net.sf.jasperreports.export.HtmlReportConfiguration;
+import net.sf.jasperreports.export.type.HtmlBorderCollapseEnum;
 import net.sf.jasperreports.properties.PropertyConstants;
 import net.sf.jasperreports.renderers.AreaHyperlinksRenderable;
 import net.sf.jasperreports.renderers.DataRenderable;
@@ -152,11 +153,6 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 	public static final String HTML_EXPORTER_PROPERTIES_PREFIX = JRPropertiesUtil.PROPERTY_PREFIX + "export.html.";
 
 	/**
-	 * @deprecated Replaced by {@link HtmlReportConfiguration#PROPERTY_IGNORE_HYPERLINK}.
-	 */
-	public static final String PROPERTY_IGNORE_HYPERLINK = HtmlReportConfiguration.PROPERTY_IGNORE_HYPERLINK;
-
-	/**
 	 * Property that provides the value for the <code>class</code> CSS style property to be applied 
 	 * to elements in the table generated for the report. The value of this property 
 	 * will be used as the value for the <code>class</code> attribute of the <code>&lt;td&gt;</code> tag for the element when exported to HTML and/or 
@@ -178,11 +174,6 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 			sinceVersion = PropertyConstants.VERSION_3_7_0
 			)
 	public static final String PROPERTY_HTML_ID = HTML_EXPORTER_PROPERTIES_PREFIX + "id";
-
-	/**
-	 * @deprecated Replaced by {@link HtmlReportConfiguration#PROPERTY_BORDER_COLLAPSE}.
-	 */
-	public static final String PROPERTY_BORDER_COLLAPSE = HtmlReportConfiguration.PROPERTY_BORDER_COLLAPSE;
 
 	protected JRHyperlinkTargetProducerFactory targetProducerFactory;		
 	
@@ -340,13 +331,13 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 
 		if (htmlHeader == null)
 		{
-			String encoding = getExporterOutput().getEncoding();
-
 			writer.write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");
 			writer.write("<html>\n");
 			writer.write("<head>\n");
 			writer.write("  <title></title>\n");
-			writer.write("  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=" + encoding + "\"/>\n");
+			writer.write("  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=");
+			writer.write(JRStringUtil.encodeXmlAttribute(getExporterOutput().getEncoding()));
+			writer.write("\"/>\n");
 			writer.write("  <style type=\"text/css\">\n");
 			writer.write("    a {text-decoration: none}\n");
 			writer.write("  </style>\n");
@@ -421,7 +412,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 
 				for (HtmlFontFamily htmlFontFamily : fontsToProcess.values())
 				{
-					writer.write("<link class=\"jrWebFont\" rel=\"stylesheet\" href=\"" + resourceHandler.getResourcePath(htmlFontFamily.getId()) + "\">\n");
+					writer.write("<link class=\"jrWebFont\" rel=\"stylesheet\" href=\"" + JRStringUtil.encodeXmlAttribute(resourceHandler.getResourcePath(htmlFontFamily.getId())) + "\">\n");
 				}
 				
 				// generate script tag on static export only
@@ -538,11 +529,11 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 			writer.write("<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"empty-cells: show; width: 100%;");
 		}
 		
-		String borderCollapse = getCurrentItemConfiguration().getBorderCollapse();
+		HtmlBorderCollapseEnum borderCollapse = getCurrentItemConfiguration().getBorderCollapseValue();
 		if (borderCollapse != null)
 		{
 			writer.write(" border-collapse: ");
-			writer.write(borderCollapse);
+			writer.write(borderCollapse.getName());
 			writer.write(";");
 		}
 		
@@ -682,7 +673,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 			styleBuffer.append("white-space: nowrap; ");
 		}
 		
-		styleBuffer.append("text-indent: " + text.getParagraph().getFirstLineIndent().intValue() + "px; ");
+		styleBuffer.append("text-indent: " + text.getParagraph().getFirstLineIndent() + "px; ");
 
 		String rotationValue = null;
 		StringBuilder spanStyleBuffer = new StringBuilder();
@@ -715,7 +706,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 		if (text.getAnchorName() != null)
 		{
 			writer.write("<a name=\"");
-			writer.write(text.getAnchorName());
+			writer.write(JRStringUtil.encodeXmlAttribute(text.getAnchorName()));
 			writer.write("\"/>");
 		}
 		
@@ -930,7 +921,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 		if (image.getAnchorName() != null)
 		{
 			writer.write("<a name=\"");
-			writer.write(image.getAnchorName());
+			writer.write(JRStringUtil.encodeXmlAttribute(image.getAnchorName()));
 			writer.write("\"/>");
 		}
 		
@@ -943,16 +934,16 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 		
 		if (renderer != null)
 		{
-			boolean startedDiv = false;
-			if (
-				scaleImage == ScaleImageEnum.CLIP
-				|| (isLazy 
+			boolean useBackgroundLazyImage = 
+				isLazy 
 				&& ((scaleImage == ScaleImageEnum.RETAIN_SHAPE || scaleImage == ScaleImageEnum.REAL_HEIGHT || scaleImage == ScaleImageEnum.REAL_SIZE) 
-					|| (image.getHorizontalImageAlign() != HorizontalImageAlignEnum.LEFT || image.getVerticalImageAlign() != VerticalImageAlignEnum.TOP)))
-				)
+					|| !(image.getHorizontalImageAlign() == HorizontalImageAlignEnum.LEFT && image.getVerticalImageAlign() == VerticalImageAlignEnum.TOP))
+				&& isUseBackgroundImageToAlign(image);
+					
+			boolean useDiv = (scaleImage == ScaleImageEnum.CLIP || useBackgroundLazyImage);
+			if (useDiv)
 			{
 				writer.write("<div style=\"width: 100%; height: 100%; position: relative; overflow: hidden;\">\n");
-				startedDiv = true;
 			}
 			
 			boolean hasAreaHyperlinks = 
@@ -998,11 +989,6 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 				}
 			}
 
-			boolean useBackgroundLazyImage = 
-				isLazy 
-				&& ((scaleImage == ScaleImageEnum.RETAIN_SHAPE || scaleImage == ScaleImageEnum.REAL_HEIGHT || scaleImage == ScaleImageEnum.REAL_SIZE) 
-					|| !(image.getHorizontalImageAlign() == HorizontalImageAlignEnum.LEFT && image.getVerticalImageAlign() == VerticalImageAlignEnum.TOP));
-				
 			InternalImageProcessor imageProcessor = 
 				new InternalImageProcessor(
 					image,
@@ -1036,7 +1022,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 					String imagePath = imageProcessorResult.imageSource;
 					if (imagePath != null)
 					{
-						writer.write(imagePath);
+						writer.write(JRStringUtil.encodeXmlAttribute(imagePath));
 					}
 					writer.write(
 						"'); background-repeat: no-repeat; background-position: " 
@@ -1175,7 +1161,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 					String imagePath = imageProcessorResult.imageSource;
 					if (imagePath != null)
 					{
-						writer.write(imagePath);
+						writer.write(JRStringUtil.encodeXmlAttribute(imagePath));
 					}
 					writer.write("\"");
 				
@@ -1283,7 +1269,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 					if (image.getHyperlinkTooltip() != null)
 					{
 						writer.write(" title=\"");
-						writer.write(JRStringUtil.xmlEncode(image.getHyperlinkTooltip()));
+						writer.write(JRStringUtil.encodeXmlAttribute(image.getHyperlinkTooltip()));
 						writer.write("\"");
 					}
 					
@@ -1296,7 +1282,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 				endHyperlink();
 			}
 			
-			if (startedDiv)
+			if (useDiv)
 			{
 				writer.write("</div>");
 			}
@@ -1624,11 +1610,11 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 		if (coords != null && coords.length > 0)
 		{
 			StringBuilder coordsEnum = new StringBuilder(coords.length * 4);
-			coordsEnum.append(toZoom(coords[0]));
+			coordsEnum.append((int)toZoom(coords[0]));
 			for (int i = 1; i < coords.length; i++)
 			{
 				coordsEnum.append(',');
-				coordsEnum.append(toZoom(coords[i]));
+				coordsEnum.append((int)toZoom(coords[i]));
 			}
 			writer.write(" coords=\"" + coordsEnum + "\"");
 		}		
@@ -1642,7 +1628,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 			if (hyperlink.getLinkType() != null)
 			{
 				int id = hyperlink.hashCode() & 0x7FFFFFFF;
-				writer.write(" class=\"_jrHyperLink " + hyperlink.getLinkType() + "\" data-id=\"" + id + "\"");
+				writer.write(" class=\"_jrHyperLink " + JRStringUtil.encodeXmlAttribute(hyperlink.getLinkType()) + "\" data-id=\"" + id + "\"");
 
 				HyperlinkData hyperlinkData = new HyperlinkData();
 				hyperlinkData.setId(String.valueOf(id));
@@ -1662,13 +1648,13 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 			}
 			else
 			{
-				writer.write(" href=\"" + href + "\"");
+				writer.write(" href=\"" + JRStringUtil.encodeXmlAttribute(href) + "\"");
 
 				String target = getHyperlinkTarget(hyperlink);
 				if (target != null)
 				{
 					writer.write(" target=\"");
-					writer.write(target);
+					writer.write(JRStringUtil.encodeXmlAttribute(target));
 					writer.write("\"");
 				}
 			}
@@ -1677,7 +1663,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 		if (hyperlink.getHyperlinkTooltip() != null)
 		{
 			writer.write(" title=\"");
-			writer.write(JRStringUtil.xmlEncode(hyperlink.getHyperlinkTooltip()));
+			writer.write(JRStringUtil.encodeXmlAttribute(hyperlink.getHyperlinkTooltip()));
 			writer.write("\"");
 		}
 	}
@@ -1852,12 +1838,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 			appendElementCellGenericStyle(cell, styleBuffer);
 			appendBackcolorStyle(cell, styleBuffer);
 			appendBorderStyle(cell.getBox(), styleBuffer);
-			if (styleBuffer.length() > 0)
-			{
-				writer.write(" style=\"");
-				writer.write(styleBuffer.toString());
-				writer.write("\"");
-			}
+			writeStyle(styleBuffer);
 
 			finishStartCell();
 			
@@ -1938,46 +1919,46 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 		String id = getCellProperty(element, cell, PROPERTY_HTML_ID);
 		if (id != null)
 		{
-			sb.append(" id=\"" + id +"\"");
+			sb.append(" id=\"" + JRStringUtil.encodeXmlAttribute(id) +"\"");
 		}
 		String clazz = getCellProperty(element, cell, PROPERTY_HTML_CLASS);
 		if (clazz != null)
 		{
-			sb.append(" class=\"" + clazz +"\"");
+			sb.append(" class=\"" + JRStringUtil.encodeXmlAttribute(clazz) +"\"");
 		}
 		String colUuid = getCellProperty(element, cell, HeaderToolbarElement.PROPERTY_COLUMN_UUID);//FIXMEJIVE register properties like this in a pluggable way; extensions?
 		if (colUuid != null)
 		{
-			sb.append(" data-coluuid=\"" + colUuid + "\"");
+			sb.append(" data-coluuid=\"" + JRStringUtil.encodeXmlAttribute(colUuid) + "\"");
 		}
 		String cellId = getCellProperty(element, cell, HeaderToolbarElement.PROPERTY_CELL_ID);
 		if (cellId != null)
 		{
-			sb.append(" data-cellid=\"" + cellId + "\"");
+			sb.append(" data-cellid=\"" + JRStringUtil.encodeXmlAttribute(cellId) + "\"");
 		}
 		String tableUuid = getCellProperty(element, cell, HeaderToolbarElement.PROPERTY_TABLE_UUID);
 		if (tableUuid != null)
 		{
-			sb.append(" data-tableuuid=\"" + tableUuid + "\"");
+			sb.append(" data-tableuuid=\"" + JRStringUtil.encodeXmlAttribute(tableUuid) + "\"");
 		}
 		String columnIndex = getCellProperty(element, cell, HeaderToolbarElement.PROPERTY_COLUMN_INDEX);
 		if (columnIndex != null)
 		{
-			sb.append(" data-colidx=\"" + columnIndex + "\"");
+			sb.append(" data-colidx=\"" + JRStringUtil.encodeXmlAttribute(columnIndex) + "\"");
 		}
 		
 		String xtabId = getCellProperty(element, cell, CrosstabInteractiveJsonHandler.PROPERTY_CROSSTAB_ID);
 		if (xtabId != null)
 		{
 			sb.append(" " + CrosstabInteractiveJsonHandler.ATTRIBUTE_CROSSTAB_ID + "=\"" 
-					+ JRStringUtil.htmlEncode(xtabId) + "\"");
+					+ JRStringUtil.encodeXmlAttribute(xtabId) + "\"");
 		}
 		
 		String xtabColIdx = getCellProperty(element, cell, CrosstabInteractiveJsonHandler.PROPERTY_COLUMN_INDEX);
 		if (xtabColIdx != null)
 		{
 			sb.append(" " + CrosstabInteractiveJsonHandler.ATTRIBUTE_COLUMN_INDEX + "=\"" 
-					+ JRStringUtil.htmlEncode(xtabColIdx) + "\"");
+					+ JRStringUtil.encodeXmlAttribute(xtabColIdx) + "\"");
 		}
 		
 		return sb.length() > 0 ? sb.toString() : null;
@@ -2123,10 +2104,10 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 			LineStyleEnum bps = box.getBottomPen().getLineStyleValue();
 			LineStyleEnum rps = box.getRightPen().getLineStyleValue();
 			
-			float tpw = box.getTopPen().getLineWidth().floatValue();
-			float lpw = box.getLeftPen().getLineWidth().floatValue();
-			float bpw = box.getBottomPen().getLineWidth().floatValue();
-			float rpw = box.getRightPen().getLineWidth().floatValue();
+			float tpw = box.getTopPen().getLineWidth();
+			float lpw = box.getLeftPen().getLineWidth();
+			float bpw = box.getBottomPen().getLineWidth();
+			float rpw = box.getRightPen().getLineWidth();
 			
 			if (0f < tpw && tpw < 1f) {
 				tpw = 1f;
@@ -2190,7 +2171,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 	{
 		boolean addedToStyle = false;
 		
-		float borderWidth = pen.getLineWidth().floatValue();
+		float borderWidth = pen.getLineWidth();
 		if (0f < borderWidth && borderWidth < 1f)
 		{
 			borderWidth = 1f;
@@ -2232,7 +2213,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 			}
 
 			sb.append(": ");
-			sb.append(toSizeUnit((int)borderWidth));
+			sb.append(toSizeUnit(borderWidth));
 			
 			sb.append(" ");
 			sb.append(borderStyle);
@@ -2298,7 +2279,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 	{
 		boolean addedToStyle = false;
 		
-		if (padding.intValue() > 0)
+		if (padding > 0)
 		{
 			sb.append("padding");
 			if (side != null)
@@ -2307,7 +2288,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 				sb.append(side);
 			}
 			sb.append(": ");
-			sb.append(toSizeUnit(padding.intValue()));
+			sb.append(toSizeUnit(padding));
 			sb.append("; ");
 
 			addedToStyle = true;
@@ -2334,7 +2315,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 				canWrite = true;
 				int id = link.hashCode() & 0x7FFFFFFF;
 
-				writer.write("<span class=\"_jrHyperLink " + link.getLinkType() + "\" data-id=\"" + id + "\"");
+				writer.write("<span class=\"_jrHyperLink " + JRStringUtil.encodeXmlAttribute(link.getLinkType()) + "\" data-id=\"" + id + "\"");
 
 				HyperlinkData hyperlinkData = new HyperlinkData();
 				hyperlinkData.setId(String.valueOf(id));
@@ -2354,14 +2335,14 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 			{
 				canWrite = true;
 				writer.write("<a href=\"");
-				writer.write(href);
+				writer.write(JRStringUtil.encodeXmlAttribute(href));
 				writer.write("\"");
 
 				String target = getHyperlinkTarget(link);
 				if (target != null)
 				{
 					writer.write(" target=\"");
-					writer.write(target);
+					writer.write(JRStringUtil.encodeXmlAttribute(target));
 					writer.write("\"");
 				}
 			}
@@ -2374,7 +2355,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 			if (link.getHyperlinkTooltip() != null)
 			{
 				writer.write(" title=\"");
-				writer.write(JRStringUtil.xmlEncode(link.getHyperlinkTooltip()));
+				writer.write(JRStringUtil.encodeXmlAttribute(link.getHyperlinkTooltip()));
 				writer.write("\"");
 			}
 
@@ -2550,14 +2531,6 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 		return String.valueOf(number) + getCurrentItemConfiguration().getSizeUnit().getName();
 	}
 
-	/**
-	 * @deprecated Replaced by {@link #toSizeUnit(float)}.
-	 */
-	public String toSizeUnit(int size)
-	{
-		return toSizeUnit((float)size);
-	}
-
 	protected float toZoom(float size)//FIXMEEXPORT cache this
 	{
 		float zoom = DEFAULT_ZOOM;
@@ -2565,7 +2538,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 		Float zoomRatio = getCurrentItemConfiguration().getZoomRatio();
 		if (zoomRatio != null)
 		{
-			zoom = zoomRatio.floatValue();
+			zoom = zoomRatio;
 			if (zoom <= 0)
 			{
 				throw 
@@ -2577,14 +2550,6 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 		}
 
 		return (zoom * size);
-	}
-
-	/**
-	 * @deprecated Replaced by {@link #toZoom(float)}.
-	 */
-	protected int toZoom(int size)
-	{
-		return (int)toZoom((float)size);
 	}
 
 	private void addSearchAttributes(JRStyledText styledText, JRPrintText textElement) {
@@ -2651,7 +2616,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 			{
 				startedSpan = true;
 				writer.write("<span title=\"");
-				writer.write(JRStringUtil.xmlEncode(tooltip));
+				writer.write(JRStringUtil.encodeXmlAttribute(tooltip));
 				writer.write("\">");
 				//reset the tooltip so that inner <span>s to not use it
 				tooltip = null;
@@ -2720,7 +2685,8 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 		// do not put single quotes around family name here because the value might already contain quotes, 
 		// especially if it is coming from font extension export configuration
 		writer.write("<span style=\"font-family: ");
-		writer.write(fontFamily);
+		// don't encode single quotes as the output would be too verbose and too much of a chance compared to previous releases
+		writer.write(JRStringUtil.encodeXmlAttribute(fontFamily, true)); 
 		writer.write("; ");
 
 		Color forecolor = (Color)attributes.get(TextAttribute.FOREGROUND);
@@ -2785,7 +2751,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 			case PROPORTIONAL:
 			{
 				if (lineSpacingSize != null) {
-					writer.write(" line-height: " + lineSpacingSize.floatValue() + ";");
+					writer.write(" line-height: " + lineSpacingSize + ";");
 				}
 				break;
 			}
@@ -2793,7 +2759,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 			case FIXED:
 			{
 				if (lineSpacingSize != null) {
-					writer.write(" line-height: " + lineSpacingSize.floatValue() + "px;");
+					writer.write(" line-height: " + lineSpacingSize + "px;");
 				}
 				break;
 			}
@@ -2839,7 +2805,7 @@ public class HtmlExporter extends AbstractHtmlExporter<HtmlReportConfiguration, 
 		if (tooltip != null)
 		{
 			writer.write(" title=\"");
-			writer.write(JRStringUtil.xmlEncode(tooltip));
+			writer.write(JRStringUtil.encodeXmlAttribute(tooltip));
 			writer.write("\"");
 		}
 			

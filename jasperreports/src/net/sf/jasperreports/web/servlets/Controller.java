@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -124,7 +124,7 @@ public class Controller
 		reportContext.setParameterValue(WebUtil.REQUEST_PARAMETER_ASYNC_REPORT, async);
 		
 		try {
-			runReport(reportContext, jasperReport, async.booleanValue());
+			runReport(reportContext, jasperReport, async);
 		} catch (JRException e) {
 			undoAction(reportContext, initialStackSize);
 			throw e;

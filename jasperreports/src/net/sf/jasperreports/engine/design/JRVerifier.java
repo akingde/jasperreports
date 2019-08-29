@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -2092,10 +2092,10 @@ public class JRVerifier
 				JRLineBox box = contents.getLineBox();
 				if (box != null)
 				{
-					topPadding = box.getTopPadding().intValue();
-					leftPadding = box.getLeftPadding().intValue();
-					bottomPadding = box.getBottomPadding().intValue();
-					rightPadding = box.getRightPadding().intValue();
+					topPadding = box.getTopPadding();
+					leftPadding = box.getLeftPadding();
+					bottomPadding = box.getBottomPadding();
+					rightPadding = box.getRightPadding();
 				}
 
 				int cellWidth = contents.getWidth();
@@ -2316,8 +2316,8 @@ public class JRVerifier
 		JRElement[] elements = frame.getElements();
 		if (elements != null && elements.length > 0)
 		{
-			int leftPadding = frame.getLineBox().getLeftPadding().intValue();
-			int rightPadding = frame.getLineBox().getRightPadding().intValue();
+			int leftPadding = frame.getLineBox().getLeftPadding();
+			int rightPadding = frame.getLineBox().getRightPadding();
 
 			int avlblWidth = frame.getWidth() - leftPadding - rightPadding;
 

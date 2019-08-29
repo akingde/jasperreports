@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -90,7 +90,7 @@ public class GraphicStyle extends Style
 
 		forecolor = JRColorUtil.getColorHexa(element.getLinePen().getLineColor());
 
-		width = element.getLinePen().getLineWidth().doubleValue();
+		width = element.getLinePen().getLineWidth();
 		if (width < 0)
 		{
 			style = "none";

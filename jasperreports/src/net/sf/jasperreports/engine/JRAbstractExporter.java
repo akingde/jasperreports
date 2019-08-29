@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -68,7 +68,6 @@ import net.sf.jasperreports.export.ExporterOutput;
 import net.sf.jasperreports.export.PropertiesDefaultsConfigurationFactory;
 import net.sf.jasperreports.export.PropertiesNoDefaultsConfigurationFactory;
 import net.sf.jasperreports.export.ReportExportConfiguration;
-import net.sf.jasperreports.export.SimpleExporterInputItem;
 import net.sf.jasperreports.properties.PropertyConstants;
 import net.sf.jasperreports.renderers.util.RendererUtil;
 import net.sf.jasperreports.repo.RepositoryResourceContext;
@@ -526,7 +525,7 @@ public abstract class JRAbstractExporter<RC extends ReportExportConfiguration, C
 			Integer offsetX = configuration.getOffsetX();
 			if (offsetX != null)
 			{
-				elementOffsetX = offsetX.intValue();
+				elementOffsetX = offsetX;
 			}
 			else
 			{
@@ -536,7 +535,7 @@ public abstract class JRAbstractExporter<RC extends ReportExportConfiguration, C
 			Integer offsetY = configuration.getOffsetY();
 			if (offsetY != null)
 			{
-				elementOffsetY = offsetY.intValue();
+				elementOffsetY = offsetY;
 			}
 			else
 			{
@@ -707,15 +706,6 @@ public abstract class JRAbstractExporter<RC extends ReportExportConfiguration, C
 	}
 	
 	
-	/**
-	 * @deprecated Replaced by {@link #setCurrentExporterInputItem(ExporterInputItem)}.
-	 */
-	protected void setJasperPrint(JasperPrint jasperPrint)
-	{
-		setCurrentExporterInputItem(new SimpleExporterInputItem(jasperPrint));
-	}
-	
-
 	/**
 	 *
 	 */
@@ -906,8 +896,8 @@ public abstract class JRAbstractExporter<RC extends ReportExportConfiguration, C
 		}
 		else
 		{
-			int topPadding = frame.getLineBox().getTopPadding().intValue();
-			int leftPadding = frame.getLineBox().getLeftPadding().intValue();
+			int topPadding = frame.getLineBox().getTopPadding();
+			int leftPadding = frame.getLineBox().getLeftPadding();
 
 			setElementOffsets(getOffsetX() + frame.getX() + leftPadding, getOffsetY() + frame.getY() + topPadding);
 		}
@@ -1274,14 +1264,6 @@ public abstract class JRAbstractExporter<RC extends ReportExportConfiguration, C
 		}
 
 		return hyperlinkProducerFactory.getHandler(link.getLinkType());
-	}
-
-	/**
-	 * @deprecated Replaced by {@link #getHyperlinkProducer(JRPrintHyperlink)}.
-	 */
-	protected JRHyperlinkProducer getCustomHandler(JRPrintHyperlink link)
-	{
-		return getHyperlinkProducer(link);
 	}
 
 	/**

@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -134,10 +134,6 @@ public class JRXlsxExporter extends JRXlsAbstractExporter<XlsxReportConfiguratio
 	
 	protected static final String ABSOLUTE = "absolute";
 
-	/**
-	 * @deprecated Replaced by {@link XlsxExporterConfiguration#PROPERTY_MACRO_TEMPLATE}.
-	 */
-	public static final String PROPERTY_MACRO_TEMPLATE = XlsxExporterConfiguration.PROPERTY_MACRO_TEMPLATE;
 	/**
 	 *
 	 */
@@ -279,12 +275,12 @@ public class JRXlsxExporter extends JRXlsAbstractExporter<XlsxReportConfiguratio
 		JRPrintPage page = report.getPages().get(imageIndex.getPageIndex());
 
 		Integer[] elementIndexes = imageIndex.getAddressArray();
-		Object element = page.getElements().get(elementIndexes[0].intValue());
+		Object element = page.getElements().get(elementIndexes[0]);
 
 		for (int i = 1; i < elementIndexes.length; ++i)
 		{
 			JRPrintFrame frame = (JRPrintFrame) element;
-			element = frame.getElements().get(elementIndexes[i].intValue());
+			element = frame.getElements().get(elementIndexes[i]);
 		}
 
 		if(element instanceof JRGenericPrintElement)
@@ -338,7 +334,7 @@ public class JRXlsxExporter extends JRXlsAbstractExporter<XlsxReportConfiguratio
 	}
 
 
-	/**
+	/*
 	 *
 	 *
 	protected void writeImageMap(String imageMapName, JRPrintHyperlink mainHyperlink, List imageMapAreas) throws IOException
@@ -412,6 +408,7 @@ public class JRXlsxExporter extends JRXlsAbstractExporter<XlsxReportConfiguratio
 			writer.write("\"");
 		}
 	}
+	*/
 
 
 	/**
@@ -900,13 +897,13 @@ public class JRXlsxExporter extends JRXlsAbstractExporter<XlsxReportConfiguratio
 		) throws JRException 
 	{
 		int topPadding =
-			Math.max(image.getLineBox().getTopPadding().intValue(), getImageBorderCorrection(image.getLineBox().getTopPen()));
+			Math.max(image.getLineBox().getTopPadding(), getImageBorderCorrection(image.getLineBox().getTopPen()));
 		int leftPadding =
-			Math.max(image.getLineBox().getLeftPadding().intValue(), getImageBorderCorrection(image.getLineBox().getLeftPen()));
+			Math.max(image.getLineBox().getLeftPadding(), getImageBorderCorrection(image.getLineBox().getLeftPen()));
 		int bottomPadding =
-			Math.max(image.getLineBox().getBottomPadding().intValue(), getImageBorderCorrection(image.getLineBox().getBottomPen()));
+			Math.max(image.getLineBox().getBottomPadding(), getImageBorderCorrection(image.getLineBox().getBottomPen()));
 		int rightPadding =
-			Math.max(image.getLineBox().getRightPadding().intValue(), getImageBorderCorrection(image.getLineBox().getRightPen()));
+			Math.max(image.getLineBox().getRightPadding(), getImageBorderCorrection(image.getLineBox().getRightPen()));
 
 		int availableImageWidth = image.getWidth() - leftPadding - rightPadding;
 		availableImageWidth = availableImageWidth < 0 ? 0 : availableImageWidth;
@@ -1756,14 +1753,6 @@ public class JRXlsxExporter extends JRXlsAbstractExporter<XlsxReportConfiguratio
 		//nothing to do here
 	}
 
-	/**
-	 * @deprecated to be removed; replaced by {@link #setFreezePane(int, int)}
-	 */ 
-	@Override
-	protected void setFreezePane(int rowIndex, int colIndex, boolean isRowEdge, boolean isColumnEdge) {
-		// nothing to do here
-	}
-
 	@Override
 	protected void setSheetName(String sheetName)
 	{
@@ -1788,22 +1777,6 @@ public class JRXlsxExporter extends JRXlsAbstractExporter<XlsxReportConfiguratio
 	protected void setRowLevels(XlsRowLevelInfo levelInfo, String level) 
 	{
 		/* nothing to do here; it's done in setRowHeight */
-	}
-	
-	/**
-	 * @deprecated Replaced by {@link XlsxExporterConfiguration#getMacroTemplate()}.
-	 */
-	public String getMacroTemplatePath() 
-	{
-		return macroTemplate;
-	}
-
-	/**
-	 * @deprecated Replaced by {@link XlsxExporterConfiguration#getMacroTemplate()}.
-	 */
-	public void setMacroTemplate(String macroTemplate) 
-	{
-		this.macroTemplate = macroTemplate;
 	}
 	
 	protected void setScale(Integer scale)

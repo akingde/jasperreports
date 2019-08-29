@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -141,7 +141,7 @@ public class JROdsExporter extends JRXlsAbstractExporter<OdsReportConfiguration,
 	@Override
 	protected void openWorkbook(OutputStream os) throws JRException, IOException
 	{
-		oasisZip = new FileBufferedOasisZip(OasisZip.MIME_TYPE_ODS);
+		oasisZip = new OdsZip();
 
 		tempBodyEntry = new FileBufferedZipEntry(null);
 		tempStyleEntry = new FileBufferedZipEntry(null);
@@ -368,13 +368,13 @@ public class JROdsExporter extends JRXlsAbstractExporter<OdsReportConfiguration,
 		) throws JRException 
 	{
 		int topPadding = 
-			Math.max(image.getLineBox().getTopPadding().intValue(), Math.round(image.getLineBox().getTopPen().getLineWidth().floatValue()));
+			Math.max(image.getLineBox().getTopPadding(), Math.round(image.getLineBox().getTopPen().getLineWidth()));
 		int leftPadding = 
-			Math.max(image.getLineBox().getLeftPadding().intValue(), Math.round(image.getLineBox().getLeftPen().getLineWidth().floatValue()));
+			Math.max(image.getLineBox().getLeftPadding(), Math.round(image.getLineBox().getLeftPen().getLineWidth()));
 		int bottomPadding = 
-			Math.max(image.getLineBox().getBottomPadding().intValue(), Math.round(image.getLineBox().getBottomPen().getLineWidth().floatValue()));
+			Math.max(image.getLineBox().getBottomPadding(), Math.round(image.getLineBox().getBottomPen().getLineWidth()));
 		int rightPadding = 
-			Math.max(image.getLineBox().getRightPadding().intValue(), Math.round(image.getLineBox().getRightPen().getLineWidth().floatValue()));
+			Math.max(image.getLineBox().getRightPadding(), Math.round(image.getLineBox().getRightPen().getLineWidth()));
 
 		int availableImageWidth = image.getWidth() - leftPadding - rightPadding;
 		availableImageWidth = availableImageWidth < 0 ? 0 : availableImageWidth;
@@ -638,14 +638,6 @@ public class JROdsExporter extends JRXlsAbstractExporter<OdsReportConfiguration,
 		// nothing to do here
 	}
 	
-	/**
-	 * @deprecated to be removed; replaced by {@link #setFreezePane(int, int)}
-	 */ 
-	@Override
-	protected void setFreezePane(int rowIndex, int colIndex, boolean isRowEdge, boolean isColumnEdge) {
-		// nothing to do here
-	}
-
 	@Override
 	protected void setSheetName(String sheetName) {
 		// TODO Auto-generated method stub

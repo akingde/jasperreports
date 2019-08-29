@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -718,7 +718,7 @@ public class JRBaseChart extends JRBaseElement implements JRChart
 			{
 				legendPositionValue = EdgeEnum.getByValue(legendPosition);
 				titlePositionValue = EdgeEnum.getByValue(titlePosition);
-				showLegend = Boolean.valueOf(isShowLegend);
+				showLegend = isShowLegend;
 			}
 			else
 			{

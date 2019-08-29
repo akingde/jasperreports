@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -25,14 +25,7 @@ package net.sf.jasperreports.components.ofc;
 
 import java.util.HashMap;
 
-import net.sf.jasperreports.engine.DefaultJasperReportsContext;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JRGenericPrintElement;
-import net.sf.jasperreports.engine.export.GenericElementPdfHandler;
-import net.sf.jasperreports.engine.export.JRPdfExporterContext;
-import net.sf.jasperreports.repo.RepositoryUtil;
-
-import org.apache.commons.collections.map.ReferenceMap;
+import org.apache.commons.collections4.map.ReferenceMap;
 
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfAnnotation;
@@ -47,6 +40,13 @@ import com.lowagie.text.pdf.PdfNumber;
 import com.lowagie.text.pdf.PdfString;
 import com.lowagie.text.pdf.PdfWriter;
 
+import net.sf.jasperreports.engine.DefaultJasperReportsContext;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JRGenericPrintElement;
+import net.sf.jasperreports.engine.export.GenericElementPdfHandler;
+import net.sf.jasperreports.engine.export.JRPdfExporterContext;
+import net.sf.jasperreports.repo.RepositoryUtil;
+
 
 /**
  * @author Lucian Chirita (lucianc@users.sourceforge.net)
@@ -56,14 +56,18 @@ public class ChartPdfHandler implements GenericElementPdfHandler
 
 	public static final String PARAMETER_CHART_DATA = "ChartData";
 
-	private final ReferenceMap existingContexts = new ReferenceMap(ReferenceMap.WEAK, 
-			ReferenceMap.HARD);
+	private final ReferenceMap<JRPdfExporterContext, PdfIndirectObject> existingContexts = 
+		new ReferenceMap<JRPdfExporterContext, PdfIndirectObject>(
+			ReferenceMap.ReferenceStrength.WEAK, ReferenceMap.ReferenceStrength.HARD
+			);
 	
+	@Override
 	public boolean toExport(JRGenericPrintElement element)
 	{
 		return true;
 	}
 	
+	@Override
 	public void exportElement(JRPdfExporterContext exporterContext,
 			JRGenericPrintElement element)
 	{
@@ -91,7 +95,7 @@ public class ChartPdfHandler implements GenericElementPdfHandler
 			}
 			else
 			{
-				swfRef = (PdfIndirectObject) existingContexts.get(exporterContext);
+				swfRef = existingContexts.get(exporterContext);
 			}
 			
 			Rectangle rect = new Rectangle(element.getX() + exporterContext.getOffsetX(), 

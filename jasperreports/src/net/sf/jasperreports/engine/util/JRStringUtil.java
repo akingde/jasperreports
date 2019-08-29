@@ -1,6 +1,6 @@
 /*
  * JasperReports - Free Java Reporting Library.
- * Copyright (C) 2001 - 2018 TIBCO Software Inc. All rights reserved.
+ * Copyright (C) 2001 - 2019 TIBCO Software Inc. All rights reserved.
  * http://www.jaspersoft.com
  *
  * Unless you have purchased a commercial license agreement from Jaspersoft,
@@ -178,6 +178,11 @@ public final class JRStringUtil
 	
 	public static String encodeXmlAttribute(String text)
 	{
+		return encodeXmlAttribute(text, false);
+	}
+	
+	public static String encodeXmlAttribute(String text, boolean exceptApos)
+	{
 		if (text == null || text.length() == 0)
 		{
 			return text;
@@ -208,8 +213,11 @@ public final class JRStringUtil
 					ret.append("&quot;");
 					break;
 				case '\'' :
-					last = appendText(text, ret, i, last);
-					ret.append("&apos;");
+					if (!exceptApos)
+					{
+						last = appendText(text, ret, i, last);
+						ret.append("&apos;");
+					}
 					break;
 				// encoding tabs and newlines because otherwise they get replaced by spaces on parsing
 				case '\t' :
